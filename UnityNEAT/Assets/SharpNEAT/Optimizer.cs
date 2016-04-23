@@ -10,8 +10,8 @@ using System.IO;
 
 public class Optimizer : MonoBehaviour {
 
-    const int NUM_INPUTS = 5;
-    const int NUM_OUTPUTS = 2;
+    const int NUM_INPUTS = 3;
+    const int NUM_OUTPUTS = 1;
 
     public int Trials;
     public float TrialDuration;
@@ -34,6 +34,8 @@ public class Optimizer : MonoBehaviour {
     private uint Generation;
     private double Fitness;
 
+    private int counter;
+
 	// Use this for initialization
 	void Start () {
         Utility.DebugLog = true;
@@ -54,8 +56,7 @@ public class Optimizer : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-      //  evaluationStartTime += Time.deltaTime;
-
+        //  evaluationStartTime += Time.deltaTime;
         timeLeft -= Time.deltaTime;
         accum += Time.timeScale / Time.deltaTime;
         ++frames;
@@ -154,12 +155,13 @@ public class Optimizer : MonoBehaviour {
 
     public void Evaluate(IBlackBox box)
     {
-        GameObject obj = Instantiate(Unit, Unit.transform.position, Unit.transform.rotation) as GameObject;
+        GameObject obj = Instantiate(Unit, new Vector3(counter*40, 0, 0), Unit.transform.rotation) as GameObject;
         UnitController controller = obj.GetComponent<UnitController>();
 
         ControllerMap.Add(box, controller);
 
         controller.Activate(box);
+        counter++;
     }
 
     public void StopEvaluation(IBlackBox box)

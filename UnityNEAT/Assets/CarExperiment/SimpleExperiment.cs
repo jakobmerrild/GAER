@@ -182,7 +182,7 @@ public class SimpleExperiment : INeatExperiment
 
         //ea.Initialize(selectiveEvaluator, genomeFactory, genomeList);
         ea.Initialize(innerEvaluator, genomeFactory, genomeList);
-
+        Debug.Log("EA has been created.");
         return ea;
     }
 }
