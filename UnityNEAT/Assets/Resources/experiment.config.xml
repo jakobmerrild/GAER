@@ -6,6 +6,9 @@
       <Activation>
         <Scheme>Acyclic</Scheme>
       </Activation>
+      <ActivationCppn>
+        <Scheme>Acyclic</Scheme>
+      </ActivationCppn>
       <ComplexityRegulationStrategy>Absolute</ComplexityRegulationStrategy>
       <ComplexityThreshold>10</ComplexityThreshold>
       <Description>Logical XOR. The goal is to reproduce the following logic truth table:

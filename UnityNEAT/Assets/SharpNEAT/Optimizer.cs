@@ -16,8 +16,8 @@ public class Optimizer : MonoBehaviour {
     public int Trials;
     public float TrialDuration;
     public float StoppingFitness;
-    bool EARunning;
-    string popFileSavePath, champFileSavePath;
+    private bool _eaRunning;
+    private string popFileSavePath, champFileSavePath;
 
     SimpleExperiment experiment;
     static NeatEvolutionAlgorithm<NeatGenome> _ea;
@@ -34,7 +34,11 @@ public class Optimizer : MonoBehaviour {
     private uint Generation;
     private double Fitness;
 
-    private int counter;
+    private int _xCounter, _zCounter;
+    private int _xOffset = -200;
+    private int _xLimit = 200;
+    private int _xFactor = 40, _zFactor = 40;
+
 
 	// Use this for initialization
 	void Start () {
@@ -92,7 +96,7 @@ public class Optimizer : MonoBehaviour {
      //   Time.fixedDeltaTime = 0.045f;
         Time.timeScale = evoSpeed;       
         _ea.StartContinue();
-        EARunning = true;
+        _eaRunning = true;
     }
 
     void ea_UpdateEvent(object sender, EventArgs e)
@@ -140,7 +144,7 @@ public class Optimizer : MonoBehaviour {
        
 
       
-        EARunning = false;        
+        _eaRunning = false;        
         
     }
 
@@ -155,13 +159,29 @@ public class Optimizer : MonoBehaviour {
 
     public void Evaluate(IBlackBox box)
     {
-        GameObject obj = Instantiate(Unit, new Vector3(counter*40, 0, 0), Unit.transform.rotation) as GameObject;
+        int xPos, zPos;
+        lock(this)
+        {
+            xPos = _xCounter * _xFactor + _xOffset;
+            if (xPos < _xLimit)
+            {
+                _xCounter++;
+            }
+                
+            else
+            {
+                _xCounter = 0;
+                _zCounter++;
+            }
+            zPos = _zCounter * _zFactor;
+        }
+ 
+        GameObject obj = Instantiate(Unit, new Vector3(xPos, 0, zPos), Unit.transform.rotation) as GameObject;
         UnitController controller = obj.GetComponent<UnitController>();
 
         ControllerMap.Add(box, controller);
 
         controller.Activate(box);
-        counter++;
     }
 
     public void StopEvaluation(IBlackBox box)
