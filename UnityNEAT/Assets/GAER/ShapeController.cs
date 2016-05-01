@@ -3,6 +3,7 @@ using System.Collections;
 using SharpNeat.Phenomes;
 using System;
 using MarchingCubesProject;
+using GAER;
 
 public class ShapeController : UnitController
 {
@@ -11,7 +12,7 @@ public class ShapeController : UnitController
     private int width = 32;
     private int height = 32;
     private int length = 32;
-    private int _numVoxels;
+    float[,,] voxels;
     // Use this for initialization
     void Start()
     {
@@ -19,13 +20,14 @@ public class ShapeController : UnitController
         MarchingCubes.SetTarget(0.5f);
         MarchingCubes.SetWindingOrder(0,1,2);
         MarchingCubes.SetModeToCubes();
+	    
     }
 
     void FixedUpdate() {    }
 
     public override void Activate(IBlackBox box)
     {
-        float[,,] voxels = new float[width, height, length];
+        voxels = new float[width, height, length];
         for (int x = 1; x < width-1; x++)
         {
             for (int y = 1; y < height-1; y++)
@@ -37,9 +39,9 @@ public class ShapeController : UnitController
                     box.InputSignalArray[1] = y;
                     box.InputSignalArray[2] = z;
                     box.Activate();
-                    voxels[x, y, z] = (float)box.OutputSignalArray[0];
-                    if (voxels[x, y, z] > 0.5f)
-                        _numVoxels++;
+                    voxels[x, y, z] = 2f;
+                    voxels[x,y,z] = (float)box.OutputSignalArray[0];
+
                 }
             }
         }
@@ -60,8 +62,8 @@ public class ShapeController : UnitController
 
     public override float GetFitness()
     {
-        int target = length * height * width / 3;
-        var fit = -Math.Abs(_numVoxels - target) + length*height*width;
+	    float materalCost = GAER.Geometry.MaterialCost3d(voxels, 0.5f, 1f);
+        float fit = length*height*width - materalCost;
         return fit;
     }
 

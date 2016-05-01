@@ -156,6 +156,7 @@ public class Optimizer : MonoBehaviour {
     public void Evaluate(IBlackBox box)
     {
         GameObject obj = Instantiate(Unit, new Vector3(counter*40, 0, 0), Unit.transform.rotation) as GameObject;
+        GameObject.FindGameObjectWithTag("MainCamera").transform.Translate(new Vector3(40,0,0));
         UnitController controller = obj.GetComponent<UnitController>();
 
         ControllerMap.Add(box, controller);

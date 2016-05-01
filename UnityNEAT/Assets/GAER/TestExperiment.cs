@@ -14,6 +14,9 @@ using SharpNeat.SpeciationStrategies;
 using SharpNeat.EvolutionAlgorithms.ComplexityRegulation;
 using SharpNEAT.Core;
 using System;
+using SharpNeat.Network;
+using SharpNeat.Genomes.HyperNeat;
+
 namespace GAER
 {
     public class TestExperiment : INeatExperiment
@@ -114,7 +117,7 @@ namespace GAER
 
         public IGenomeFactory<NeatGenome> CreateGenomeFactory()
         {
-            return new NeatGenomeFactory(InputCount, OutputCount, _neatGenomeParams);
+            return new CppnGenomeFactory(InputCount, OutputCount, DefaultActivationFunctionLibrary.CreateLibraryCppn(), _neatGenomeParams);
         }
 
         public NeatEvolutionAlgorithm<NeatGenome> CreateEvolutionAlgorithm(string fileName)
