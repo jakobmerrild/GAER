@@ -62,6 +62,8 @@ namespace SharpNeat.EvolutionAlgorithms
         bool _pauseRequestFlag;
         readonly AutoResetEvent _awaitPauseEvent = new AutoResetEvent(false);
         readonly AutoResetEvent _awaitRestartEvent = new AutoResetEvent(false);
+        private bool _awaitPauseFlag = false;
+        private bool _awaitRestartFlag = false;
 
         #endregion
 
@@ -177,7 +179,7 @@ namespace SharpNeat.EvolutionAlgorithms
             {   // Create a new thread and start it running.
              //   print("RunState ready");
                 _runState = RunState.Running;
-                Coroutine c = Coroutiner.StartCoroutine( AlgorithmThreadMethod());
+                Coroutiner.StartCoroutine( AlgorithmThreadMethod());
              //   print("Continue from AlgorithmThreadMethod in StartContinue");
                 OnUpdateEvent();
                 
@@ -186,7 +188,8 @@ namespace SharpNeat.EvolutionAlgorithms
             {   // Thread is paused. Resume execution.
                 _runState = RunState.Running;
                 OnUpdateEvent();
-                _awaitRestartEvent.Set();
+                //_awaitRestartEvent.Set();
+                _awaitRestartFlag = true;
             }
             else if(RunState.Running == _runState)
             {   // Already running. Log a warning.
@@ -280,9 +283,9 @@ namespace SharpNeat.EvolutionAlgorithms
                     _runState = RunState.Paused;
                     OnUpdateEvent();
                     OnPausedEvent();
+                    _awaitRestartFlag = false;
                     // Wait indefinitely for a signal to wake up and continue.
-                    _awaitRestartEvent.WaitOne();
-                    break;
+                    yield return new WaitUntil(() => _awaitRestartFlag);
                 }
             }
             //}
