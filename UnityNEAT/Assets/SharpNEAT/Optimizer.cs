@@ -19,7 +19,7 @@ public class Optimizer : MonoBehaviour {
     private bool _eaRunning;
     private string popFileSavePath, champFileSavePath;
 
-    SimpleExperiment experiment;
+    ISimpleExperiment experiment;
     static NeatEvolutionAlgorithm<NeatGenome> _ea;
 
     public GameObject Unit;
@@ -49,7 +49,7 @@ public class Optimizer : MonoBehaviour {
         xmlConfig.LoadXml(textAsset.text);
         experiment.SetOptimizer(this);
 
-        experiment.Initialize("Car Experiment", xmlConfig.DocumentElement, NUM_INPUTS, NUM_OUTPUTS);
+        experiment.Initialize("Chair Experiment", xmlConfig.DocumentElement, NUM_INPUTS, NUM_OUTPUTS);
 
         champFileSavePath = Application.persistentDataPath + string.Format("/{0}.champ.xml", "car");
         popFileSavePath = Application.persistentDataPath + string.Format("/{0}.pop.xml", "car");

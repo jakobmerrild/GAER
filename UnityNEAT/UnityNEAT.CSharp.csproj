@@ -146,6 +146,7 @@
     <Compile Include="Assets\SharpNEAT\Genomes\Neat\NeuronGene.cs" />
     <Compile Include="Assets\SharpNEAT\Genomes\Neat\NeuronGeneList.cs" />
     <Compile Include="Assets\SharpNEAT\Genomes\RbfNeat\RbfGenomeFactory.cs" />
+    <Compile Include="Assets\SharpNEAT\ISimpleExperiment.cs" />
     <Compile Include="Assets\SharpNEAT\Network\ActivationFunctions\ActivationFunctionInfo.cs" />
     <Compile Include="Assets\SharpNEAT\Network\ActivationFunctions\Bipolar\BipolarGaussian.cs" />
     <Compile Include="Assets\SharpNEAT\Network\ActivationFunctions\Bipolar\BipolarSigmoid.cs" />

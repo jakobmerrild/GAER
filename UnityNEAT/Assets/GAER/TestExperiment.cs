@@ -14,22 +14,32 @@ using SharpNeat.SpeciationStrategies;
 using SharpNeat.EvolutionAlgorithms.ComplexityRegulation;
 using SharpNEAT.Core;
 using System;
+using SharpNeat.Decoders.HyperNeat;
+using SharpNeat.Network;
+
 namespace GAER
 {
-    public class TestExperiment : INeatExperiment
+    public class TestExperiment : ISimpleExperiment
     {
+
         NeatEvolutionAlgorithmParameters _eaParams;
         NeatGenomeParameters _neatGenomeParams;
         string _name;
         int _populationSize;
         int _specieCount;
         NetworkActivationScheme _activationScheme;
+        private NetworkActivationScheme _activationSchemeCppn;
         string _complexityRegulationStr;
         int? _complexityThreshold;
         string _description;
         Optimizer _optimizer;
         int _inputCount;
         int _outputCount;
+
+        public static readonly int Width = 10;
+        public static readonly int Height = 10;
+        public static readonly int Length = 10;
+
 
         public string Name
         {
@@ -82,6 +92,7 @@ namespace GAER
             _name = name;
             _populationSize = XmlUtils.GetValueAsInt(xmlConfig, "PopulationSize");
             _specieCount = XmlUtils.GetValueAsInt(xmlConfig, "SpecieCount");
+            _activationSchemeCppn = ExperimentUtils.CreateActivationScheme(xmlConfig, "ActivationCppn");
             _activationScheme = ExperimentUtils.CreateActivationScheme(xmlConfig, "Activation");
             _complexityRegulationStr = XmlUtils.TryGetValueAsString(xmlConfig, "ComplexityRegulationStrategy");
             _complexityThreshold = XmlUtils.TryGetValueAsInt(xmlConfig, "ComplexityThreshold");
@@ -109,6 +120,7 @@ namespace GAER
 
         public IGenomeDecoder<NeatGenome, IBlackBox> CreateGenomeDecoder()
         {
+            return CreateCppnDecoder();
             return new NeatGenomeDecoder(_activationScheme);
         }
 
@@ -182,8 +194,55 @@ namespace GAER
 
             //ea.Initialize(selectiveEvaluator, genomeFactory, genomeList);
             ea.Initialize(innerEvaluator, genomeFactory, genomeList);
-
             return ea;
+        }
+
+        private IGenomeDecoder<NeatGenome, IBlackBox> CreateCppnDecoder()
+        {
+            //Create input and output layer for the HyperNEAT substrate
+            //Each layer corresponds to the Voxel space.
+            var numNodes = Width * Height * Length;
+            var inputLayer = new SubstrateNodeSet(numNodes);
+            var outputLayer = new SubstrateNodeSet(numNodes);
+
+            //Each node in each layer needs a unique ID.
+            //The input nodes use ID range [1, numNodes]
+            //The output nodes use [numNodes+1, numNodes*2]
+            uint inputId = 1, outputId = (uint)numNodes + 1;
+
+            //The voxel space is represented as a 3-dimensional space.
+            //Each voxel is represented as a triple of coordinates (x,y,z)
+            //x falls into the range [0, Width-1]
+            //y falls into the range [0, Height-1]
+            //z falls into the range [0, Length-1]
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    for (int z = 0; z < Length; z++)
+                    {
+                        inputLayer.NodeList.Add(new SubstrateNode(inputId++, new double[] { x, y, z }));
+                        outputLayer.NodeList.Add(new SubstrateNode(outputId++, new double[] { x, y, z }));
+                    }
+                }
+            }
+            var nodeSetList = new List<SubstrateNodeSet>(2) { inputLayer, outputLayer };
+
+            //Define a connection mapping from the input layer to the output layer.
+            var nodeSetMappingList = new List<NodeSetMapping>(1);
+            nodeSetMappingList.Add(NodeSetMapping.Create(0, 1, 1.0));
+
+            //Construct the substrate using a steepened sigmoid as the phenome's
+            //activation function. All weights under 0.2 will not generate
+            //connections in the final phenome.
+            var substrate = new Substrate(nodeSetList,
+                DefaultActivationFunctionLibrary.CreateLibraryCppn(),
+                0, 0.2, 5, nodeSetMappingList);
+
+            return new HyperNeatDecoder(substrate, _activationSchemeCppn, _activationScheme, false);
+
+
+
         }
     }
 }

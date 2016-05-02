@@ -15,9 +15,10 @@ using SharpNeat.EvolutionAlgorithms.ComplexityRegulation;
 using SharpNEAT.Core;
 using System;
 using SharpNeat.Decoders.HyperNeat;
+using SharpNeat.Genomes.HyperNeat;
 using SharpNeat.Network;
 
-public class SimpleExperiment : INeatExperiment
+public class SimpleExperiment : ISimpleExperiment
 {
 
     NeatEvolutionAlgorithmParameters _eaParams;
@@ -124,6 +125,7 @@ public class SimpleExperiment : INeatExperiment
 
     public IGenomeFactory<NeatGenome> CreateGenomeFactory()
     {
+        return new CppnGenomeFactory(InputCount, OutputCount, DefaultActivationFunctionLibrary.CreateLibraryCppn(), _neatGenomeParams);
         return new NeatGenomeFactory(InputCount, OutputCount, _neatGenomeParams);
     }
 
