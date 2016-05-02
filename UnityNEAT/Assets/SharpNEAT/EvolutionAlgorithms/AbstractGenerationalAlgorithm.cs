@@ -177,7 +177,7 @@ namespace SharpNeat.EvolutionAlgorithms
             {   // Create a new thread and start it running.
              //   print("RunState ready");
                 _runState = RunState.Running;
-                Coroutiner.StartCoroutine( AlgorithmThreadMethod());
+                Coroutine c = Coroutiner.StartCoroutine( AlgorithmThreadMethod());
              //   print("Continue from AlgorithmThreadMethod in StartContinue");
                 OnUpdateEvent();
                 
@@ -273,16 +273,16 @@ namespace SharpNeat.EvolutionAlgorithms
                 if (_pauseRequestFlag || _genomeListEvaluator.StopConditionSatisfied)
                 {
                     // Signal to any waiting thread that we are pausing
-                   // _awaitPauseEvent.Set();
+                    _awaitPauseEvent.Set();
 
                     // Reset the flag. Update RunState and notify any listeners of the state change.
-                 //   _pauseRequestFlag = false;
-                 //   _runState = RunState.Paused;
+                    _pauseRequestFlag = false;
+                    _runState = RunState.Paused;
                     OnUpdateEvent();
                     OnPausedEvent();
-                    break;
                     // Wait indefinitely for a signal to wake up and continue.
-                 //   _awaitRestartEvent.WaitOne();
+                    _awaitRestartEvent.WaitOne();
+                    break;
                 }
             }
             //}

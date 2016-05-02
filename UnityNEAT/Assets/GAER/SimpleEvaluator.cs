@@ -3,6 +3,7 @@ using System.Collections;
 using SharpNeat.Core;
 using SharpNeat.Phenomes;
 using System.Collections.Generic;
+using System;
 
 namespace GAER
 {
@@ -71,6 +72,8 @@ namespace GAER
 
             return FitnessInfo.Zero;
         }
+
     }
+    
 }
 

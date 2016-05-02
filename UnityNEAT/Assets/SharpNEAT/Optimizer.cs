@@ -8,6 +8,7 @@ using System;
 using System.Xml;
 using System.IO;
 using GAER;
+using SharpNeat.Core;
 
 public class Optimizer : MonoBehaviour {
 
@@ -21,7 +22,7 @@ public class Optimizer : MonoBehaviour {
     private string popFileSavePath, champFileSavePath;
 
     ISimpleExperiment experiment;
-    static NeatEvolutionAlgorithm<NeatGenome> _ea;
+    private NeatEvolutionAlgorithm<NeatGenome> _ea;
 
     public GameObject Unit;
 
@@ -54,7 +55,7 @@ public class Optimizer : MonoBehaviour {
 
         champFileSavePath = Application.persistentDataPath + string.Format("/{0}.champ.xml", "car");
         popFileSavePath = Application.persistentDataPath + string.Format("/{0}.pop.xml", "car");
-
+	    StoppingFitness = TestExperiment.Height*TestExperiment.Length*TestExperiment.Width;
         print(champFileSavePath);
 	}
 
@@ -82,28 +83,55 @@ public class Optimizer : MonoBehaviour {
     }
 
     public void StartEA()
-    {        
-        Utility.DebugLog = true;
-        Utility.Log("Starting PhotoTaxis experiment");
-        // print("Loading: " + popFileLoadPath);
-        _ea = experiment.CreateEvolutionAlgorithm(popFileSavePath);
-        startTime = DateTime.Now;
-
-        _ea.UpdateEvent += new EventHandler(ea_UpdateEvent);
-        _ea.PausedEvent += new EventHandler(ea_PauseEvent);
-
+    {
         var evoSpeed = 25;
+        if (_ea == null)
+        {
+            Utility.DebugLog = true;
+            Utility.Log("Starting PhotoTaxis experiment");
+            // print("Loading: " + popFileLoadPath);
+            _ea = experiment.CreateEvolutionAlgorithm(popFileSavePath);
+            startTime = DateTime.Now;
 
-     //   Time.fixedDeltaTime = 0.045f;
-        Time.timeScale = evoSpeed;       
-        _ea.StartContinue();
-        _eaRunning = true;
+            _ea.UpdateEvent += ea_UpdateEvent;
+            _ea.PausedEvent += ea_PauseEvent;
+
+            //   Time.fixedDeltaTime = 0.045f;
+            Time.timeScale = evoSpeed;
+            _ea.StartContinue();
+            _eaRunning = true;
+        }
+        else if (_ea.RunState == RunState.Paused)
+        {
+            Time.timeScale = evoSpeed;
+            _ea.StartContinue();
+            _eaRunning = true;
+        }
+            
+
     }
+
+    public void PauseEA()
+    {
+        if (_ea != null && _ea.RunState == RunState.Running)
+        {
+            _ea.RequestPause();
+        }
+    }
+
+    private ulong _updateCounter;
+    private const uint Intervals = 10;
 
     void ea_UpdateEvent(object sender, EventArgs e)
     {
-        Utility.Log(string.Format("gen={0:N0} bestFitness={1:N6}",
-            _ea.CurrentGeneration, _ea.Statistics._maxFitness));
+        _updateCounter++;
+        print(String.Format("Update Event no: {0}", _updateCounter));
+        if (_updateCounter%Intervals == 0)
+        {
+            _ea.Stop();
+        }
+           
+        //Utility.Log(string.Format("gen={0:N0} bestFitness={1:N6}", _ea.CurrentGeneration, _ea.Statistics._maxFitness));
 
         Fitness = _ea.Statistics._maxFitness;
         Generation = _ea.CurrentGeneration;
@@ -141,7 +169,7 @@ public class Optimizer : MonoBehaviour {
         DateTime endTime = DateTime.Now;
         Utility.Log("Total time elapsed: " + (endTime - startTime));
 
-        System.IO.StreamReader stream = new System.IO.StreamReader(popFileSavePath);
+        //System.IO.StreamReader stream = new System.IO.StreamReader(popFileSavePath);
        
 
       
@@ -185,6 +213,7 @@ public class Optimizer : MonoBehaviour {
         controller.Activate(box);
     }
 
+
     public void StopEvaluation(IBlackBox box)
     {
         UnitController ct = ControllerMap[box];
@@ -207,7 +236,7 @@ public class Optimizer : MonoBehaviour {
 
 
         }
-        catch (Exception e1)
+        catch (Exception)
         {
             // print(champFileLoadPath + " Error loading genome from file!\nLoading aborted.\n"
             //						  + e1.Message + "\nJoe: " + champFileLoadPath);
@@ -243,15 +272,21 @@ public class Optimizer : MonoBehaviour {
         {
             StartEA();
         }
-        if (GUI.Button(new Rect(10, 60, 100, 40), "Stop EA"))
+        if (GUI.Button(new Rect(10, 60, 100, 40), "Pause EA"))
+        {
+            PauseEA();
+        }
+        if (GUI.Button(new Rect(10, 110, 100, 40), "Stop best"))
         {
             StopEA();
         }
-        if (GUI.Button(new Rect(10, 110, 100, 40), "Run best"))
+
+        if (GUI.Button(new Rect(10, 160, 100, 40), "Run best"))
         {
             RunBest();
         }
-
         GUI.Button(new Rect(10, Screen.height - 70, 100, 60), string.Format("Generation: {0}\nFitness: {1:0.00}", Generation, Fitness));
     }
+
+
 }

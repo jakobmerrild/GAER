@@ -55,7 +55,7 @@ namespace SharpNEAT.Core
             Dictionary<TGenome, FitnessInfo[]> fitnessDict = new Dictionary<TGenome, FitnessInfo[]>();
             for (int i = 0; i < _optimizer.Trials; i++)
             {
-                Utility.Log("Iteration " + (i + 1));                
+                //Utility.Log("Iteration " + (i + 1));                
                 _phenomeEvaluator.Reset();
                 dict = new Dictionary<TGenome, TPhenome>();
                 foreach (TGenome genome in genomeList)
