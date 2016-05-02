@@ -7,6 +7,7 @@ using SharpNeat.Genomes.Neat;
 using System;
 using System.Xml;
 using System.IO;
+using GAER;
 
 public class Optimizer : MonoBehaviour {
 
@@ -37,13 +38,13 @@ public class Optimizer : MonoBehaviour {
     private int _xCounter, _zCounter;
     private int _xOffset = -200;
     private int _xLimit = 200;
-    private int _xFactor = 40, _zFactor = 40;
+    private int _xFactor = TestExperiment.Width+6 , _zFactor = TestExperiment.Length + 6;
 
 
 	// Use this for initialization
 	void Start () {
         Utility.DebugLog = true;
-        experiment = new SimpleExperiment();
+        experiment = new TestExperiment();
         XmlDocument xmlConfig = new XmlDocument();
         TextAsset textAsset = (TextAsset)Resources.Load("experiment.config");
         xmlConfig.LoadXml(textAsset.text);

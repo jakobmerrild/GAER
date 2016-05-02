@@ -15,6 +15,7 @@ using SharpNeat.EvolutionAlgorithms.ComplexityRegulation;
 using SharpNEAT.Core;
 using System;
 using SharpNeat.Decoders.HyperNeat;
+using SharpNeat.Genomes.HyperNeat;
 using SharpNeat.Network;
 
 namespace GAER
@@ -36,9 +37,9 @@ namespace GAER
         int _inputCount;
         int _outputCount;
 
-        public static readonly int Width = 10;
-        public static readonly int Height = 10;
-        public static readonly int Length = 10;
+        public static readonly int Width = 32;
+        public static readonly int Height = 32;
+        public static readonly int Length = 32;
 
 
         public string Name
@@ -120,13 +121,15 @@ namespace GAER
 
         public IGenomeDecoder<NeatGenome, IBlackBox> CreateGenomeDecoder()
         {
-            return CreateCppnDecoder();
+            //return CreateCppnDecoder();
             return new NeatGenomeDecoder(_activationScheme);
         }
 
         public IGenomeFactory<NeatGenome> CreateGenomeFactory()
         {
-            return new NeatGenomeFactory(InputCount, OutputCount, _neatGenomeParams);
+            //return new CppnGenomeFactory(InputCount, OutputCount, DefaultActivationFunctionLibrary.CreateLibraryCppn(), _neatGenomeParams);
+           
+            return new NeatGenomeFactory(InputCount, OutputCount, DefaultActivationFunctionLibrary.CreateLibraryCppn(),  _neatGenomeParams);
         }
 
         public NeatEvolutionAlgorithm<NeatGenome> CreateEvolutionAlgorithm(string fileName)
@@ -152,9 +155,6 @@ namespace GAER
                 genomeList = genomeFactory.CreateGenomeList(_populationSize, 0);
 
             }
-
-
-
             return CreateEvolutionAlgorithm(genomeFactory, genomeList);
         }
 

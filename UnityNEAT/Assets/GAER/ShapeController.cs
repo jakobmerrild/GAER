@@ -2,15 +2,16 @@
 using System.Collections;
 using SharpNeat.Phenomes;
 using System;
+using GAER;
 using MarchingCubesProject;
 
 public class ShapeController : UnitController
 {
     public Material m_material;
     GameObject m_mesh;
-    private static readonly int Width = SimpleExperiment.Width;
-    private static readonly int Height = SimpleExperiment.Height;
-    private static readonly int Length = SimpleExperiment.Length;
+    private static readonly int Width = TestExperiment.Width;
+    private static readonly int Height = TestExperiment.Height;
+    private static readonly int Length = TestExperiment.Length;
     private readonly float[,,] _voxels = new float[Width, Height, Length];
     private int _numVoxels;
     // Use this for initialization

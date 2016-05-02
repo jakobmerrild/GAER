@@ -69,13 +69,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\BallExperiment\BallController.cs" />
-    <Compile Include="Assets\CarExperiment\CarController.cs" />
-    <Compile Include="Assets\CarExperiment\GoalPiece.cs" />
-    <Compile Include="Assets\CarExperiment\RoadPiece.cs" />
-    <Compile Include="Assets\CarExperiment\SimpleEvaluator.cs" />
-    <Compile Include="Assets\CarExperiment\SimpleExperiment.cs" />
     <Compile Include="Assets\GAER\ShapeController.cs" />
+    <Compile Include="Assets\GAER\SimpleEvaluator.cs" />
     <Compile Include="Assets\GAER\TestExperiment.cs" />
     <Compile Include="Assets\SharpNEAT\Core\AuxFitnessInfo.cs" />
     <Compile Include="Assets\SharpNEAT\Core\CoordinateVector.cs" />
