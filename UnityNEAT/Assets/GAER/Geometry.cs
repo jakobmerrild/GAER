@@ -1,5 +1,9 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Networking.Match;
+using Object = UnityEngine.Object;
+
 namespace GAER {
 
 	public class Geometry {
@@ -18,8 +22,10 @@ namespace GAER {
 			return count*unitCost;
 		}
 
-		public static int[,,] FindComponents(float[,,] voxels, float threshold)
+
+		public static List<GameObject> FindComponents(float[,,] voxels, float threshold)
 		{
+		    ConnectedComponent result = new ConnectedComponent();
 			int[,,] labels = new int[voxels.GetLength(0), voxels.GetLength(1), voxels.GetLength(2)];
 			int label = 1;
 			for(int i = 0; i < voxels.GetLength(0); i++)
@@ -28,11 +34,18 @@ namespace GAER {
 				{
 					for (int k = 0; k < voxels.GetLength(2); k++)
 					{
-						label = GrassFire(voxels, i, j, k, labels, label, threshold);
+					    ConnectedComponent conComp;
+						label = GrassFire(voxels, i, j, k, labels, label, threshold, out conComp);
+					    if (conComp.Size > result.Size)
+					    {
+                            result.Components.ForEach(Object.Destroy);
+                            result = conComp;
+                        }
+					        
 					}
 				}
 			}
-			return labels;
+			return result.Components;
 		}
 
 		public static int[,,] FindComponentsProbably(float[,,] voxels, float threshold){
@@ -42,8 +55,10 @@ namespace GAER {
 			int zrank = voxels.GetLength(2);
 			for (int x = 0; x<2;x++){
 				for (int z = 0; z<2;z++){
-					for (int y = 0; y<voxels.GetLength(1); y++){
-						label = GrassFire(voxels, xrank/4 + xrank/2*x, y, zrank/4 + zrank/2*z, labels, label, threshold);
+					for (int y = 0; y<voxels.GetLength(1); y++)
+					{
+					    ConnectedComponent conComp;
+						label = GrassFire(voxels, xrank/4 + xrank/2*x, y, zrank/4 + zrank/2*z, labels, label, threshold, out conComp);
 					}
 				}
 			}
@@ -51,8 +66,9 @@ namespace GAER {
 
 		}
 
-		private static int GrassFire(float[,,] voxels, int x, int y, int z, int[,,] labels, int label, float threshold)
+		private static int GrassFire(float[,,] voxels, int x, int y, int z, int[,,] labels, int label, float threshold, out ConnectedComponent result)
 		{
+            result = new ConnectedComponent {Label = label};
 			Stack<int[]> s = new Stack<int[]>();
 			s.Push(new int[] { x, y, z });
 			int nextLabel = label;
@@ -74,7 +90,21 @@ namespace GAER {
 
 				if (labels[x, y, z] == 0 && voxels[x, y, z] > threshold)
 				{
-					nextLabel++;
+				    var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    cube.transform.position = new Vector3(x, y, z);
+				    cube.AddComponent<Rigidbody>();
+				    if (result.Parent == null)
+				    {
+				        result.Parent = cube;
+				    }
+				    else
+				    {
+                        cube.AddComponent<FixedJoint>().connectedBody = result.Parent.GetComponent<Rigidbody>();
+                    }
+                    result.Components.Add(cube);
+                    result.Size++;
+
+                    nextLabel++;
 					labels[x, y, z] = label;
 					foreach (int[] p in GeneratePositions(x, y, z))
 					{
@@ -105,5 +135,18 @@ namespace GAER {
 			}
 			return res;
 		}
+
+	    private class ConnectedComponent
+	    {
+	        public int Size { get; set; }
+	        public int Label { get; set; }
+	        public GameObject Parent { get; set; }
+	        public List<GameObject> Components { get; private set; }
+
+	        public ConnectedComponent()
+	        {
+	            Components = new List<GameObject>();
+	        }
+	    }
 	}
 }

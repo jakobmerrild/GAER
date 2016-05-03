@@ -2,6 +2,7 @@
 using System.Collections;
 using SharpNeat.Phenomes;
 using System;
+using System.Collections.Generic;
 using GAER;
 using MarchingCubesProject;
 
@@ -13,6 +14,7 @@ public class ShapeController : UnitController
     private static readonly int Height = TestExperiment.Height;
     private static readonly int Length = TestExperiment.Length;
     private readonly float[,,] _voxels = new float[Width, Height, Length];
+    private List<GameObject> _components;
     private int _numVoxels;
     // Use this for initialization
     void Start()
@@ -45,18 +47,19 @@ public class ShapeController : UnitController
             }
         }
 
-        Mesh mesh = MarchingCubes.CreateMesh(_voxels);
+        //Mesh mesh = MarchingCubes.CreateMesh(_voxels);
 
-        mesh.uv = new Vector2[mesh.vertices.Length];
-        mesh.RecalculateNormals();
+        //mesh.uv = new Vector2[mesh.vertices.Length];
+        //mesh.RecalculateNormals();
 
-        m_mesh = new GameObject("Mesh");
-        m_mesh.AddComponent<MeshFilter>();
-        m_mesh.AddComponent<MeshRenderer>();
-        m_mesh.GetComponent<Renderer>().material = m_material;
-        m_mesh.GetComponent<MeshFilter>().mesh = mesh;
-        //Center mesh
-        m_mesh.transform.position = transform.position;
+        //m_mesh = new GameObject("Mesh");
+        //m_mesh.AddComponent<MeshFilter>();
+        //m_mesh.AddComponent<MeshRenderer>();
+        //m_mesh.GetComponent<Renderer>().material = m_material;
+        //m_mesh.GetComponent<MeshFilter>().mesh = mesh;
+        ////Center mesh
+        //m_mesh.transform.position = transform.position;
+        _components = Geometry.FindComponents(_voxels, 0.5f);
     }
 
     public override float GetFitness()
@@ -78,7 +81,7 @@ public class ShapeController : UnitController
 
     public override void Stop()
     {
-        Destroy(m_mesh);
+        _components.ForEach(Destroy);        
     }
 
 
