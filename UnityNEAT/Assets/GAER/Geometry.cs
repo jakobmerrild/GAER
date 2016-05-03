@@ -1,5 +1,10 @@
+using System;
+using System.Collections.Generic;
 namespace GAER {
+
 	public class Geometry {
+        private static Random rand = new Random();
+
 		public static float MaterialCost3d(float[,,] voxels, float unitCost, float threshold) {
 			int count = 0;
 			for(int i = 0; i < voxels.GetLength(0); i++) {
@@ -33,21 +38,33 @@ namespace GAER {
 
         private static int GrassFire(float[,,] voxels, int x, int y, int z, int[,,] labels, int label, float threshold)
         {
-            //bounds check
-            if (  x < 0 || voxels.GetLength(0) < x
-               || y < 0 || voxels.GetLength(1) < y
-               || z < 0 || voxels.GetLength(2) < z)
-            {
-                return -1;
-            }
-
+            Stack<int[]> s = new Stack<int[]>();
+            s.Push(new int[] { x, y, z });
             int nextLabel = label;
-            if (labels[x,y,z] == 0 && voxels[x,y,z] > threshold)
+
+            while (s.Count > 0)
             {
-                nextLabel++;
-                labels[x, y, z] = label;
-                foreach(int[] p in GeneratePositions(x, y, z)) {
-                    GrassFire(voxels, p[0], p[1], p[2], labels, label, threshold);
+                int[] currentPoint = s.Pop();
+                x = currentPoint[0];
+                y = currentPoint[1];
+                z = currentPoint[2];
+
+                //bounds check
+                if (x < 0 || voxels.GetLength(0) <= x
+                   || y < 0 || voxels.GetLength(1) <= y
+                   || z < 0 || voxels.GetLength(2) <= z)
+                {
+                    continue;
+                }
+             
+                if (labels[x, y, z] == 0 && voxels[x, y, z] > threshold)
+                {
+                    nextLabel++;
+                    labels[x, y, z] = label;
+                    foreach (int[] p in GeneratePositions(x, y, z))
+                    {
+                        s.Push(p);
+                    }
                 }
             }
             return nextLabel;
