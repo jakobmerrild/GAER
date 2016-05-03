@@ -61,7 +61,7 @@ public class ShapeController : UnitController
 
     public override float GetFitness()
     {
-        int[,,] labels = Geometry.FindComponents(_voxels, 0.5f);
+        int[,,] labels = Geometry.FindComponentsProbably(_voxels, 0.5f);
         int componentCount = 0;
         for (int x = 1; x < Width - 1; x++)
         {
