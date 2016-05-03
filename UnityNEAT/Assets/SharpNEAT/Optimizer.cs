@@ -7,6 +7,7 @@ using SharpNeat.Genomes.Neat;
 using System;
 using System.Xml;
 using System.IO;
+using System.Linq;
 using GAER;
 using SharpNeat.Core;
 
@@ -19,7 +20,7 @@ public class Optimizer : MonoBehaviour {
     public float TrialDuration;
     public float StoppingFitness;
     private bool _eaRunning;
-    private string popFileSavePath, champFileSavePath;
+    private string popFileSavePath, champFileSavePath, bestFileSavePath;
 
     ISimpleExperiment experiment;
     private NeatEvolutionAlgorithm<NeatGenome> _ea;
@@ -36,15 +37,18 @@ public class Optimizer : MonoBehaviour {
     private uint Generation;
     private double Fitness;
 
-    private int _xCounter, _zCounter;
+    private int _xCounter, _zCounter, _counter; //Counters used when calculating the position of objects.
     private int _xOffset = -200;
     private int _xLimit = 200;
     private int _xFactor = TestExperiment.Width+6 , _zFactor = TestExperiment.Length + 6;
 
-    public bool Ready { get; private set; }
+    //Store _numBestPhenomes phenomes everytime the EA pauses. See ea_PauseEvent
+    private const int NumBestPhenomes = 10;
+    private List<IBlackBox> _bestPhenomes;
 
-	// Use this for initialization
-	void Start () {
+    #region Unity methods
+    // Use this for initialization
+    void Start () {
         Utility.DebugLog = true;
         experiment = new TestExperiment();
         XmlDocument xmlConfig = new XmlDocument();
@@ -54,8 +58,9 @@ public class Optimizer : MonoBehaviour {
 
         experiment.Initialize("Chair Experiment", xmlConfig.DocumentElement, NUM_INPUTS, NUM_OUTPUTS);
 
-        champFileSavePath = Application.persistentDataPath + string.Format("/{0}.champ.xml", "car");
-        popFileSavePath = Application.persistentDataPath + string.Format("/{0}.pop.xml", "car");
+        champFileSavePath = Application.persistentDataPath + string.Format("/{0}.champ.xml", "chair");
+        popFileSavePath = Application.persistentDataPath + string.Format("/{0}.pop.xml", "chair");
+        bestFileSavePath = Application.persistentDataPath + string.Format("/{0}.best.{1}.xml", "chair", NumBestPhenomes);
 	    StoppingFitness = TestExperiment.Height*TestExperiment.Length*TestExperiment.Width;
         print(champFileSavePath);
 	}
@@ -82,48 +87,12 @@ public class Optimizer : MonoBehaviour {
             }
         }
     }
+#endregion
 
-    public void StartEA()
-    {
-        var evoSpeed = 25;
-        if (_ea == null)
-        {
-            Utility.DebugLog = true;
-            Utility.Log("Starting PhotoTaxis experiment");
-            // print("Loading: " + popFileLoadPath);
-            _ea = experiment.CreateEvolutionAlgorithm(popFileSavePath);
-            startTime = DateTime.Now;
-
-            _ea.UpdateEvent += ea_UpdateEvent;
-            _ea.PausedEvent += ea_PauseEvent;
-
-            //   Time.fixedDeltaTime = 0.045f;
-            Time.timeScale = evoSpeed;
-            _ea.StartContinue();
-            _eaRunning = true;
-        }
-        else if (_ea.RunState == RunState.Paused)
-        {
-            Time.timeScale = evoSpeed;
-            _ea.StartContinue();
-            _eaRunning = true;
-        }
-            
-
-    }
-    /// <summary>
-    /// Method to be called by the "Pause EA" button.
-    /// </summary>
-    public void PauseEA()
-    {
-        if (_ea != null && _ea.RunState == RunState.Running)
-        {
-            _ea.RequestPause();
-        }
-    }
-
+    #region Listener methods for subscribing to EA events.
+    //Fields used to automatically request the EA to pause at certain intervals.
     private ulong _updateCounter;
-    private const uint Intervals = 10;
+    private const uint Intervals = 10; //Adjust this up to make the auto pause happen more rarely, and down for more frequently.
     /// <summary>
     /// Callback method for the update event on the EA.
     /// </summary>
@@ -163,7 +132,7 @@ public class Optimizer : MonoBehaviour {
         DirectoryInfo dirInf = new DirectoryInfo(Application.persistentDataPath);
         if (!dirInf.Exists)
         {
-            Debug.Log("Creating subdirectory");
+            Debug.Log("Creating subdirectory: " + dirInf.FullName);
             dirInf.Create();
         }
         using (XmlWriter xw = XmlWriter.Create(popFileSavePath, _xwSettings))
@@ -176,30 +145,28 @@ public class Optimizer : MonoBehaviour {
         {
             experiment.SavePopulation(xw, new NeatGenome[] { _ea.CurrentChampGenome });
         }
+        // save the _numBestPhenomes best phenomes and evaluate them(show them on screen.)
+        var decoder = experiment.CreateGenomeDecoder();
+        var bestGenomes = _ea.GenomeList.OrderByDescending(x => x.EvaluationInfo.Fitness).Take(NumBestPhenomes).ToList();
+        _bestPhenomes = bestGenomes.Select(x => decoder.Decode(x)).ToList();
+        _bestPhenomes.ForEach(Evaluate);
+        ResetCounters(); //Hack to reset the counters used to calculate the position of the objects.
+        using (XmlWriter xw = XmlWriter.Create(bestFileSavePath, _xwSettings))
+        {
+            print("Writing to " + bestFileSavePath);
+            experiment.SavePopulation(xw, bestGenomes);
+        }
         DateTime endTime = DateTime.Now;
         Utility.Log("Total time elapsed: " + (endTime - startTime));
 
         //System.IO.StreamReader stream = new System.IO.StreamReader(popFileSavePath);
-       
-
-      
+     
         _eaRunning = false;        
         
     }
-    /// <summary>
-    /// Method to be called by the Stop EA button
-    /// </summary>
-    public void StopEA()
-    {
+#endregion
 
-        if (_ea != null && _ea.RunState == SharpNeat.Core.RunState.Running)
-        {
-            _ea.Stop();
-        }
-    }
-
-    private int _counter;
-
+    #region UnityNEAT methods
     public void Evaluate(IBlackBox box)
     {
         int xPos, zPos;
@@ -220,9 +187,7 @@ public class Optimizer : MonoBehaviour {
             _counter++;
             if (_counter == experiment.DefaultPopulationSize)
             {
-                _xCounter = 0;
-                _zCounter = 0;
-                _counter = 0;
+                ResetCounters();
             }
                 
         }
@@ -234,7 +199,6 @@ public class Optimizer : MonoBehaviour {
 
         controller.Activate(box);
     }
-
 
     public void StopEvaluation(IBlackBox box)
     {
@@ -288,7 +252,22 @@ public class Optimizer : MonoBehaviour {
         }
         return 0;
     }
+    #endregion
 
+    #region Utility methods
+
+    private void ResetCounters()
+    {
+        _xCounter = 0;
+        _zCounter = 0;
+        _counter = 0;
+    }
+#endregion
+
+    #region GUI methods
+    /// <summary>
+    /// Method to create some buttons on the GUI.
+    /// </summary>
     void OnGUI()
     {
         if (GUI.Button(new Rect(10, 10, 100, 40), "Start EA"))
@@ -310,6 +289,56 @@ public class Optimizer : MonoBehaviour {
         }
         GUI.Button(new Rect(10, Screen.height - 70, 100, 60), string.Format("Generation: {0}\nFitness: {1:0.00}", Generation, Fitness));
     }
+    /// <summary>
+    /// Method to be called by the Stop EA button
+    /// </summary>
+    public void StopEA()
+    {
+
+        if (_ea != null && _ea.RunState == SharpNeat.Core.RunState.Running)
+        {
+            _ea.Stop();
+        }
+    }
+
+    public void StartEA()
+    {
+        var evoSpeed = 25;
+        if (_ea == null)
+        {
+            Utility.DebugLog = true;
+            Utility.Log("Starting PhotoTaxis experiment");
+            // print("Loading: " + popFileLoadPath);
+            _ea = experiment.CreateEvolutionAlgorithm(popFileSavePath);
+            startTime = DateTime.Now;
+
+            _ea.UpdateEvent += ea_UpdateEvent;
+            _ea.PausedEvent += ea_PauseEvent;
+
+            //   Time.fixedDeltaTime = 0.045f;
+            Time.timeScale = evoSpeed;
+            _ea.StartContinue();
+            _eaRunning = true;
+        }
+        else if (_ea.RunState == RunState.Paused)
+        {
+            Time.timeScale = evoSpeed;
+            _ea.StartContinue();
+            _bestPhenomes.ForEach(StopEvaluation);
+            _eaRunning = true;
+        }
 
 
+    }
+    /// <summary>
+    /// Method to be called by the "Pause EA" button.
+    /// </summary>
+    public void PauseEA()
+    {
+        if (_ea != null && _ea.RunState == RunState.Running)
+        {
+            _ea.RequestPause();
+        }
+    }
+    #endregion
 }
