@@ -132,7 +132,6 @@ public class Optimizer : MonoBehaviour {
         DirectoryInfo dirInf = new DirectoryInfo(Application.persistentDataPath);
         if (!dirInf.Exists)
         {
-            Debug.Log("Creating subdirectory: " + dirInf.FullName);
             dirInf.Create();
         }
         using (XmlWriter xw = XmlWriter.Create(popFileSavePath, _xwSettings))
@@ -153,7 +152,6 @@ public class Optimizer : MonoBehaviour {
         ResetCounters(); //Hack to reset the counters used to calculate the position of the objects.
         using (XmlWriter xw = XmlWriter.Create(bestFileSavePath, _xwSettings))
         {
-            print("Writing to " + bestFileSavePath);
             experiment.SavePopulation(xw, bestGenomes);
         }
         DateTime endTime = DateTime.Now;
@@ -255,7 +253,6 @@ public class Optimizer : MonoBehaviour {
     #endregion
 
     #region Utility methods
-
     private void ResetCounters()
     {
         _xCounter = 0;
@@ -303,7 +300,7 @@ public class Optimizer : MonoBehaviour {
 
     public void StartEA()
     {
-        var evoSpeed = 25;
+        var evoSpeed = 100;
         if (_ea == null)
         {
             Utility.DebugLog = true;
