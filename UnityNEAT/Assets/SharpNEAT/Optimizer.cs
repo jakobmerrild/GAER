@@ -110,7 +110,9 @@ public class Optimizer : MonoBehaviour {
             
 
     }
-
+    /// <summary>
+    /// Method to be called by the "Pause EA" button.
+    /// </summary>
     public void PauseEA()
     {
         if (_ea != null && _ea.RunState == RunState.Running)
@@ -121,11 +123,14 @@ public class Optimizer : MonoBehaviour {
 
     private ulong _updateCounter;
     private const uint Intervals = 10;
-
+    /// <summary>
+    /// Callback method for the update event on the EA.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     void ea_UpdateEvent(object sender, EventArgs e)
     {
         _updateCounter++;
-        print(String.Format("Update Event no: {0}", _updateCounter));
         if (_updateCounter%Intervals == 0)
         {
             _ea.Stop();
@@ -141,7 +146,11 @@ public class Optimizer : MonoBehaviour {
 
     
     }
-
+    /// <summary>
+    /// Callback method for the 
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     void ea_PauseEvent(object sender, EventArgs e)
     {
         Time.timeScale = 1;
@@ -217,7 +226,7 @@ public class Optimizer : MonoBehaviour {
     public void StopEvaluation(IBlackBox box)
     {
         UnitController ct = ControllerMap[box];
-
+        ct.Stop();
         Destroy(ct.gameObject);
     }
 
@@ -276,7 +285,7 @@ public class Optimizer : MonoBehaviour {
         {
             PauseEA();
         }
-        if (GUI.Button(new Rect(10, 110, 100, 40), "Stop best"))
+        if (GUI.Button(new Rect(10, 110, 100, 40), "Stop EA"))
         {
             StopEA();
         }

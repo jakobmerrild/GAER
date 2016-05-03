@@ -68,6 +68,7 @@ public class ShapeController : UnitController
 
     public override void Stop()
     {
+        Destroy(m_mesh);
     }
 
 
