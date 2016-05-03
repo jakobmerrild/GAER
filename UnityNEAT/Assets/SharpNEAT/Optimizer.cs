@@ -139,7 +139,6 @@ public class Optimizer : MonoBehaviour {
             experiment.SavePopulation(xw, _ea.GenomeList);
         }
         // Also save the best genome
-
         using (XmlWriter xw = XmlWriter.Create(champFileSavePath, _xwSettings))
         {
             experiment.SavePopulation(xw, new NeatGenome[] { _ea.CurrentChampGenome });
@@ -156,6 +155,8 @@ public class Optimizer : MonoBehaviour {
         }
         DateTime endTime = DateTime.Now;
         Utility.Log("Total time elapsed: " + (endTime - startTime));
+        var camera = GameObject.FindGameObjectWithTag("MainCamera");
+        camera.transform.Rotate(Vector3.up, 180.0f);
 
         //System.IO.StreamReader stream = new System.IO.StreamReader(popFileSavePath);
      
@@ -300,6 +301,8 @@ public class Optimizer : MonoBehaviour {
 
     public void StartEA()
     {
+        var camera = GameObject.FindGameObjectWithTag("MainCamera");
+        camera.transform.Rotate(Vector3.up, 180.0f);
         var evoSpeed = 100;
         if (_ea == null)
         {
