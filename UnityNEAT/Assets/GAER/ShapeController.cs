@@ -73,7 +73,7 @@ public class ShapeController : UnitController
                 }
             }
         }
-        return componentCount / _numVoxels;
+        return componentCount/(_numVoxels+1);
     }
 
     public override void Stop()
