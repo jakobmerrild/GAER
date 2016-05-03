@@ -41,6 +41,7 @@ public class Optimizer : MonoBehaviour {
     private int _xLimit = 200;
     private int _xFactor = TestExperiment.Width+6 , _zFactor = TestExperiment.Length + 6;
 
+    public bool Ready { get; private set; }
 
 	// Use this for initialization
 	void Start () {
@@ -147,7 +148,7 @@ public class Optimizer : MonoBehaviour {
     
     }
     /// <summary>
-    /// Callback method for the 
+    /// Callback method for the pause event on the EA.
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
@@ -185,7 +186,9 @@ public class Optimizer : MonoBehaviour {
         _eaRunning = false;        
         
     }
-
+    /// <summary>
+    /// Method to be called by the Stop EA button
+    /// </summary>
     public void StopEA()
     {
 
@@ -194,7 +197,10 @@ public class Optimizer : MonoBehaviour {
             _ea.Stop();
         }
     }
-
+    /// <summary>
+    /// Evaluate 
+    /// </summary>
+    /// <param name="box"></param>
     public void Evaluate(IBlackBox box)
     {
         int xPos, zPos;
@@ -228,6 +234,7 @@ public class Optimizer : MonoBehaviour {
         UnitController ct = ControllerMap[box];
         ct.Stop();
         Destroy(ct.gameObject);
+        ControllerMap.Remove(box);
     }
 
     public void RunBest()
