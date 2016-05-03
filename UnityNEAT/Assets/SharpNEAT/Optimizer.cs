@@ -197,10 +197,9 @@ public class Optimizer : MonoBehaviour {
             _ea.Stop();
         }
     }
-    /// <summary>
-    /// Evaluate 
-    /// </summary>
-    /// <param name="box"></param>
+
+    private int _counter;
+
     public void Evaluate(IBlackBox box)
     {
         int xPos, zPos;
@@ -218,6 +217,14 @@ public class Optimizer : MonoBehaviour {
                 _zCounter++;
             }
             zPos = _zCounter * _zFactor;
+            _counter++;
+            if (_counter == experiment.DefaultPopulationSize)
+            {
+                _xCounter = 0;
+                _zCounter = 0;
+                _counter = 0;
+            }
+                
         }
  
         GameObject obj = Instantiate(Unit, new Vector3(xPos, 0, zPos), Unit.transform.rotation) as GameObject;
