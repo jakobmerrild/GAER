@@ -1,10 +1,6 @@
 ﻿using System;
 using UnityEngine;
-using System.Collections;
 using System.Linq;
-using System.Threading;
-using PerlinNoiseProject;
-using UnityEngine.Networking;
 
 namespace MarchingCubesProject
 {
@@ -16,7 +12,7 @@ namespace MarchingCubesProject
         GameObject[] m_mesh;
 
         //Model dimension size
-        static int dimSize = 16;
+        static int dimSize = 12;
 
         //Population size for the grid
         static int popSize = 16;
@@ -65,12 +61,12 @@ namespace MarchingCubesProject
             for (int i = 2; i < popSize; i++)
             {
                 var voxels = ModelGen.GenerateRandomModel(dimSize);
-                m_mesh[i] = genObject(voxels);
+                m_mesh[i] = new ModelRen( voxels ).Cubify();
             }
 
             
             //population, width, height, length
-            StartCoroutine( Tester.Testpopulation(m_mesh, dimSize, dimSize, dimSize, results) );
+            StartCoroutine( Tester.Testpopulation(m_mesh, dimSize, dimSize, dimSize) );
 
             Debug.Log("Time take = " + (Time.realtimeSinceStartup - start) * 1000.0f);
 

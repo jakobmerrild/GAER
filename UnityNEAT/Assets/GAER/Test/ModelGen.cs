@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace MarchingCubesProject
 {
@@ -55,21 +54,8 @@ namespace MarchingCubesProject
         }
     }
 
-    public class ModelRen
+    public class ModelRen : MonoBehaviour
     {
-        public struct comp
-        {
-            private int x;
-            private int y;
-            private GameObject component;
-
-            public comp(int x, int y, GameObject component)
-            {
-                this.x = x;
-                this.y = y;
-                this.component = component;
-            }
-        }
 
         private readonly float[,,] model;
 
@@ -81,63 +67,65 @@ namespace MarchingCubesProject
         public GameObject Cubify()
         {
             var par = new GameObject("CubifiedModel");
-            return par;
-        }
+            var block = GameObject.CreatePrimitive(PrimitiveType.Cube);
 
- /*       public List<comp> SliceModel(int layerIndex)
-        {
-            var components = new List<comp>();
+            //constants
+            var cubeWidth = 1; //x
+            var cubeHeight = 1; //y
+            var cubeLength = 1; //z
 
-            for (int x = 0; x < model.GetLength(0); x++)
+            var cubes = new GameObject[model.GetLength(0), model.GetLength(1), model.GetLength(2)];
+
+            for (int i = 0; i < model.GetLength(0); i++)
             {
-                for (int z = 0; z < model.GetLength(2); z++)
+                for (int j = 0; j < model.GetLength(1); j++)
                 {
-                    int startX, startZ, endX, endZ;
-                    if (model[x, layerIndex, z] == 1)
+                    for (int k = 0; k < model.GetLength(2); k++)
                     {
-                        startX = x; endX = x;
-                        startZ = z; endZ = z;
-                        while (model[endX, layerIndex, endZ] == 1.0f) endX++;
-                        for (int dX = startX; dX <= endX; endZ++)
+                        if(model[i,j,k] == 0) continue;
+                        cubes[i, j, k] = (GameObject) Instantiate(block,
+                            new Vector3(par.transform.position.x + i*cubeWidth,
+                                par.transform.position.y + j*cubeHeight,
+                                par.transform.position.z + k*cubeLength
+                                ),
+                            Quaternion.identity
+                            );
+                        cubes[i, j, k].gameObject.AddComponent<Rigidbody>();
+                        cubes[i, j, k].gameObject.AddComponent<BoxCollider>();
+                        cubes[i, j, k].gameObject.transform.parent = par.transform;
+                    }
+                }
+            }
+            Destroy(block);
+
+            for (int i = 0; i < model.GetLength(0); i++)
+            {
+                for (int j = 0; j < model.GetLength(1)-1; j++)
+                {
+                    for (int k = 0; k < model.GetLength(2)-1; k++)
+                    {
+                        if (cubes[i, j, k] == null) continue;
+
+                        //check neighbours
+                        if (cubes[i + 1, j, k] != null)
                         {
-                            //check if adjacent row of same size exists
-                            while (model[dX, layerIndex, endZ] == 1.0f) dX++;
-                            if(dX < endX) break;
+                            cubes[i, j, k].gameObject.AddComponent<FixedJoint>().connectedBody = cubes[i + 1, j, k].GetComponent<Rigidbody>();
                         }
-                        GameObject go = new GameObject();
-                        go.transform.localScale = new Vector3(endX-startX, 1, endZ-startZ);
-                        components.Add( new comp(startX, startZ, go) );
+
+                        if (cubes[i, j + 1, k] != null)
+                        {
+                            cubes[i, j, k].gameObject.AddComponent<FixedJoint>().connectedBody = cubes[i, j + 1, k].GetComponent<Rigidbody>();
+                        }
+
+                        if (cubes[i, j, k + 1] != null)
+                        {
+                            cubes[i, j, k].gameObject.AddComponent<FixedJoint>().connectedBody = cubes[i, j, k + 1].GetComponent<Rigidbody>();
+                        }
                     }
                 }
+
             }
-
-            return components;
-        }*/
-
-        public void PreProcessSlice(int y_index)
-        {
-            int[,] connected = new int[model.GetLength(0), model.GetLength(2)];
-
-            int cmp = 1;
-            for (int x = 0; x < connected.GetLength(0); x++)
-            {
-                for (int z = 0; z < connected.GetLength(1); z++)
-                {
-                    if (model[x, y_index, z] == 1)
-                    {
-                        connected[x, z] = cmp;
-
-                        //Adjacent right
-                        if (model[x + 1, y_index, z] == 1) connected[x + 1, z] = cmp;
-                        else cmp++;
-
-                        //Adjacent below
-                        if (model[x, y_index, z + 1] == 1) connected[x, z + 1] = cmp;
-                        else cmp++;
-                    }
-                }
-            }
-
+            return par;
         }
 
     }
