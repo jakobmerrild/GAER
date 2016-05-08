@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿#define ROTATECAMERA
+using UnityEngine;
 using System.Collections;
 using SharpNeat.Phenomes;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ using System.IO;
 using System.Linq;
 using GAER;
 using SharpNeat.Core;
+
 
 public class Optimizer : MonoBehaviour {
 
@@ -186,11 +188,13 @@ public class Optimizer : MonoBehaviour {
         }
         DateTime endTime = DateTime.Now;
         Utility.Log("Total time elapsed: " + (endTime - startTime));
+#if (ROTATECAMERA)
         var camera = GameObject.FindGameObjectWithTag("MainCamera");
         camera.transform.Rotate(Vector3.up, 180.0f);
+#endif
 
         //System.IO.StreamReader stream = new System.IO.StreamReader(popFileSavePath);
-     
+
         _eaRunning = false;        
         
     }
@@ -235,7 +239,7 @@ public class Optimizer : MonoBehaviour {
         UnitController ct = ControllerMap[box];
         ct.Stop();
         Destroy(ct.gameObject);
-        ControllerMap.Remove(box);
+        //ControllerMap.Remove(box);
     }
 
     public void RunBest()
@@ -332,8 +336,10 @@ public class Optimizer : MonoBehaviour {
 
     public void StartEA()
     {
+#if (ROTATECAMERA)
         var camera = GameObject.FindGameObjectWithTag("MainCamera");
         camera.transform.Rotate(Vector3.up, 180.0f);
+#endif
         var evoSpeed = 100;
         if (_ea == null)
         {

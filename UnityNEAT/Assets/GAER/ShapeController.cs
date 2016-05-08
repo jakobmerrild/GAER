@@ -64,7 +64,6 @@ public class ShapeController : UnitController
     public override float GetFitness()
     {
         var children = Geometry.FindLargestComponent(_voxels, _threshold);
-        gameObject.AddComponent<Rigidbody>();
         foreach (var child in children)
         {
             child.transform.parent = gameObject.transform;
