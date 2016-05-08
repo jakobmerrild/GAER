@@ -63,7 +63,38 @@ public class Optimizer : MonoBehaviour {
         bestFileSavePath = Application.persistentDataPath + string.Format("/{0}.best.{1}.xml", "chair", NumBestPhenomes);
 	    StoppingFitness = TestExperiment.Height*TestExperiment.Length*TestExperiment.Width;
         print(champFileSavePath);
-	}
+
+        //var rng = new System.Random();
+        //float[,,] voxels = new float[10,10,10];
+        //for (int x = 0; x < 10; x++)
+        //{
+        //    voxels[0, 0, x] = 1;
+        //    voxels[0, x, 0] = 1;
+        //    voxels[x, 0, 0] = 1;
+        //    for (int y = 0; y < 10; y++)
+        //    {
+        //        for (int z = 0; z < 10; z++)
+        //        {
+        //            //if((x < 1 && y < 1 && z < 1) || (x > 8 && y > 8 && z > 8))
+        //            //    voxels[x, y, z] = 1.0f;
+        //        }
+        //    }
+        //}
+        //GameObject parent = new GameObject();
+        //var children = Geometry.FindLargestComponent(voxels, 0.5f);
+        //parent.AddComponent<Rigidbody>();
+        //foreach (var child in children)
+        //{
+        //    child.transform.parent = parent.transform;
+        //}
+        //var sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        //sphere.AddComponent<Rigidbody>();
+        //sphere.GetComponent<Rigidbody>().mass = 100;
+        //sphere.transform.position = new Vector3(1, 20, 1);
+        //sphere.transform.localScale = new Vector3(10, 10, 10);
+
+
+    }
 
     // Update is called once per frame
     void Update()
