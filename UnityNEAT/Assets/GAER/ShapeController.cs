@@ -58,16 +58,18 @@ public class ShapeController : UnitController
         //m_mesh.GetComponent<MeshFilter>().mesh = mesh;
         ////Center mesh
         //m_mesh.transform.position = transform.position;
+        
+    }
+
+    public override float GetFitness()
+    {
         var children = Geometry.FindLargestComponent(_voxels, _threshold);
         gameObject.AddComponent<Rigidbody>();
         foreach (var child in children)
         {
             child.transform.parent = gameObject.transform;
+            child.GetComponent<Renderer>().material = m_material;
         }
-    }
-
-    public override float GetFitness()
-    {
         return (float)gameObject.transform.childCount/(_numVoxels+1);
     }
 
