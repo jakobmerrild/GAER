@@ -2,6 +2,7 @@
 using System.Collections;
 using SharpNeat.Phenomes;
 using System;
+using System.Diagnostics;
 using GAER;
 using MarchingCubesProject;
 
@@ -15,6 +16,8 @@ public class ShapeController : UnitController
     private readonly float[,,] _voxels = new float[Width, Height, Length];
     private int _numVoxels;
     private float _threshold = 0.5f;
+    private Stopwatch sw = new Stopwatch();
+    public int ChildCount;
     // Use this for initialization
     void Start()
     {
@@ -27,12 +30,13 @@ public class ShapeController : UnitController
 
     public override void Activate(IBlackBox box)
     {
+        sw.Start();
         _numVoxels = 0;
-        for (int x = 1; x < Width-1; x++)
+        for (int x = 0; x < Width; x++)
         {
-            for (int y = 1; y < Height-1; y++)
+            for (int y = 0; y < Height; y++)
             {
-                for (int z = 1; z < Length-1; z++)
+                for (int z = 0; z < Length; z++)
                 {
                     box.ResetState();
                     box.InputSignalArray[0] = x;
@@ -40,11 +44,12 @@ public class ShapeController : UnitController
                     box.InputSignalArray[2] = z;
                     box.Activate();
                     _voxels[x, y, z] = (float)box.OutputSignalArray[0];
-                    if (_voxels[x, y, z] > 0.5f)
+                    if (_voxels[x, y, z] > _threshold)
                         _numVoxels++;
                 }
             }
         }
+        print(String.Format("Time taken to generate voxels: {0}ms", sw.ElapsedMilliseconds));
 
         //Mesh mesh = MarchingCubes.CreateMesh(_voxels);
 
@@ -58,18 +63,20 @@ public class ShapeController : UnitController
         //m_mesh.GetComponent<MeshFilter>().mesh = mesh;
         ////Center mesh
         //m_mesh.transform.position = transform.position;
-        
+        var stopWatch = new Stopwatch();
+        stopWatch.Start();
+        Geometry.FindLargestComponent(_voxels, _threshold, gameObject);
+        stopWatch.Stop();
+        ChildCount = transform.childCount;
+        print(String.Format("It took {0}ms to find largest component.", stopWatch.ElapsedMilliseconds));
+
     }
 
     public override float GetFitness()
     {
-        var children = Geometry.FindLargestComponent(_voxels, _threshold);
-        foreach (var child in children)
-        {
-            child.transform.parent = gameObject.transform;
-            child.GetComponent<Renderer>().material = m_material;
-        }
-        return (float)gameObject.transform.childCount/(_numVoxels+1);
+        sw.Stop();
+        print(String.Format("It took {0}ms from activation to fitness evaluation.", sw.ElapsedMilliseconds));
+        return -Math.Abs(ChildCount - (Width * Height * Length / 3))+Width*Height*Length;
     }
 
     public override void Stop()
