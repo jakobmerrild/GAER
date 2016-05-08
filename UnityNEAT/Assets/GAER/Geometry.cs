@@ -20,11 +20,15 @@ namespace GAER {
 			return count*unitCost;
 		}
 
-	    public static List<GameObject> FindLargestComponent(float[,,] voxels, float threshold)
+	    public static GameObject FindLargestComponent(float[,,] voxels, float threshold, GameObject parent)
 	    {
 	        int label;
-	        var labels = FindComponents(voxels, threshold, out label);
-            var result = new List<GameObject>();
+	        var labels = FindComponentsProbably(voxels, threshold, out label);
+	        float xSum = 0, ySum = 0, zSum = 0; //for gravity?
+	        if (label <= 0)
+	        {
+	            return parent;
+	        }
 	        for (int x = 0; x < voxels.GetLength(0); x++)
 	        {
 	            for (int y = 0; y < voxels.GetLength(1); y++)
@@ -33,14 +37,40 @@ namespace GAER {
 	                {
 	                    if (labels[x, y, z] == label)
 	                    {
-	                        var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                            cube.transform.localPosition = new Vector3(x,y,z);
-                            result.Add(cube);
+	                        var positions = GeneratePositions(x, y, z);
+	                        bool surrounded = true;
+	                        foreach (var position in positions)
+	                        {
+	                            int _x = position[0];
+	                            int _y = position[1];
+                                int _z = position[2];
+	                            if (_x < 0 || labels.GetLength(0) <= _x
+	                                || _y < 0 || labels.GetLength(1) <= _y
+	                                || _z < 0 || labels.GetLength(2) <= _z)
+	                            {
+	                                surrounded = false;
+	                                break;
+	                            }
+                                if (labels[x, y, z] != label)
+                                {
+                                    surrounded = false;
+                                    break;
+                                }
+                                
+	                        }
+	                        if (!surrounded)
+	                        {
+                                var cube = GameObject.CreatePrimitive((PrimitiveType.Cube));
+                                cube.transform.parent = parent.transform;
+                                cube.transform.localPosition = new Vector3(x, y, z);
+                                cube.GetComponent<Renderer>().sharedMaterial = parent.GetComponent<ShapeController>().m_material;
+                            }
+                            
 	                    }
 	                }
 	            }
 	        }
-	        return result;
+	        return parent;
 	    }
 
 		public static int[,,] FindComponents(float[,,] voxels, float threshold, out int maxSizeLabel)
