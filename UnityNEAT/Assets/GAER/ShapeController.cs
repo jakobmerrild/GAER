@@ -14,10 +14,11 @@ public class ShapeController : UnitController
     private static readonly int Length = TestExperiment.Length;
     private readonly float[,,] _voxels = new float[Width, Height, Length];
     private int _numVoxels;
+    private float _threshold = 0.5f;
     // Use this for initialization
     void Start()
     {
-        MarchingCubes.SetTarget(0.5f);
+        MarchingCubes.SetTarget(_threshold);
         MarchingCubes.SetWindingOrder(0,1,2);
         MarchingCubes.SetModeToCubes();
     }
@@ -45,35 +46,29 @@ public class ShapeController : UnitController
             }
         }
 
-        Mesh mesh = MarchingCubes.CreateMesh(_voxels);
+        //Mesh mesh = MarchingCubes.CreateMesh(_voxels);
 
-        mesh.uv = new Vector2[mesh.vertices.Length];
-        mesh.RecalculateNormals();
+        //mesh.uv = new Vector2[mesh.vertices.Length];
+        //mesh.RecalculateNormals();
 
-        m_mesh = new GameObject("Mesh");
-        m_mesh.AddComponent<MeshFilter>();
-        m_mesh.AddComponent<MeshRenderer>();
-        m_mesh.GetComponent<Renderer>().material = m_material;
-        m_mesh.GetComponent<MeshFilter>().mesh = mesh;
-        //Center mesh
-        m_mesh.transform.position = transform.position;
+        //m_mesh = new GameObject("Mesh");
+        //m_mesh.AddComponent<MeshFilter>();
+        //m_mesh.AddComponent<MeshRenderer>();
+        //m_mesh.GetComponent<Renderer>().material = m_material;
+        //m_mesh.GetComponent<MeshFilter>().mesh = mesh;
+        ////Center mesh
+        //m_mesh.transform.position = transform.position;
+        var children = Geometry.FindLargestComponent(_voxels, _threshold);
+        gameObject.AddComponent<Rigidbody>();
+        foreach (var child in children)
+        {
+            child.transform.parent = gameObject.transform;
+        }
     }
 
     public override float GetFitness()
     {
-        int[,,] labels = Geometry.FindComponentsProbably(_voxels, 0.5f);
-        int componentCount = 0;
-        for (int x = 1; x < Width - 1; x++)
-        {
-            for (int y = 1; y < Height - 1; y++)
-            {
-                for (int z = 1; z < Length - 1; z++)
-                {
-                    componentCount = Math.Max(componentCount, labels[x, y, z]);
-                }
-            }
-        }
-        return componentCount/(_numVoxels+1);
+        return (float)gameObject.transform.childCount/(_numVoxels+1);
     }
 
     public override void Stop()
