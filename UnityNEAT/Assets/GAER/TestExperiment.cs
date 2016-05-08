@@ -29,7 +29,6 @@ namespace GAER
         int _populationSize;
         int _specieCount;
         NetworkActivationScheme _activationScheme;
-        private NetworkActivationScheme _activationSchemeCppn;
         string _complexityRegulationStr;
         int? _complexityThreshold;
         string _description;
@@ -93,7 +92,6 @@ namespace GAER
             _name = name;
             _populationSize = XmlUtils.GetValueAsInt(xmlConfig, "PopulationSize");
             _specieCount = XmlUtils.GetValueAsInt(xmlConfig, "SpecieCount");
-            _activationSchemeCppn = ExperimentUtils.CreateActivationScheme(xmlConfig, "ActivationCppn");
             _activationScheme = ExperimentUtils.CreateActivationScheme(xmlConfig, "Activation");
             _complexityRegulationStr = XmlUtils.TryGetValueAsString(xmlConfig, "ComplexityRegulationStrategy");
             _complexityThreshold = XmlUtils.TryGetValueAsInt(xmlConfig, "ComplexityThreshold");
