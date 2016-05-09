@@ -18,6 +18,7 @@ public class ShapeController : UnitController
     private float _threshold = 0.5f;
     private Stopwatch sw = new Stopwatch();
     public int ChildCount;
+    private PhysicsTester.BallDropExperiment _ballDropExperiment;
     // Use this for initialization
     void Start()
     {
@@ -51,24 +52,14 @@ public class ShapeController : UnitController
         }
         print(String.Format("Time taken to generate voxels: {0}ms", sw.ElapsedMilliseconds));
 
-        //Mesh mesh = MarchingCubes.CreateMesh(_voxels);
-
-        //mesh.uv = new Vector2[mesh.vertices.Length];
-        //mesh.RecalculateNormals();
-
-        //m_mesh = new GameObject("Mesh");
-        //m_mesh.AddComponent<MeshFilter>();
-        //m_mesh.AddComponent<MeshRenderer>();
-        //m_mesh.GetComponent<Renderer>().material = m_material;
-        //m_mesh.GetComponent<MeshFilter>().mesh = mesh;
-        ////Center mesh
-        //m_mesh.transform.position = transform.position;
         var stopWatch = new Stopwatch();
         stopWatch.Start();
         Geometry.FindLargestComponent(_voxels, _threshold, gameObject);
         stopWatch.Stop();
         ChildCount = transform.childCount;
+        _ballDropExperiment = PhysicsTester.StartBallDropExperiment(gameObject);
         print(String.Format("It took {0}ms to find largest component.", stopWatch.ElapsedMilliseconds));
+
 
     }
 
@@ -76,6 +67,10 @@ public class ShapeController : UnitController
     {
         sw.Stop();
         print(String.Format("It took {0}ms from activation to fitness evaluation.", sw.ElapsedMilliseconds));
+
+        PhysicsTester.BallDropResults bdResults = PhysicsTester.MeassureBallDropExperiment(_ballDropExperiment);
+
+        print("Balldrop: " + bdResults);
         return -Math.Abs(ChildCount - (Width * Height * Length / 3))+Width*Height*Length;
     }
 

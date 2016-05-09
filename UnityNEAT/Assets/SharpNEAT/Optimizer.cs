@@ -1,4 +1,4 @@
-﻿#define ROTATECAMERA
+﻿//#define ROTATECAMERA
 using UnityEngine;
 using System.Collections;
 using SharpNeat.Phenomes;
