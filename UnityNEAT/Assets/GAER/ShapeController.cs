@@ -3,6 +3,7 @@ using System.Collections;
 using SharpNeat.Phenomes;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using GAER;
 using MarchingCubesProject;
 
@@ -84,7 +85,23 @@ public class ShapeController : UnitController
         Destroy(m_mesh);
     }
 
+    protected override void OnMouseDown()
+    {
+        foreach (var r in GetComponentsInChildren<Renderer>())
+        {
+            r.material.SetFloat("Metallic", 1.0f);
+        }
+        base.OnMouseDown();
+    }
 
+    public override void DeSelect()
+    {
+        foreach (var r in GetComponentsInChildren<Renderer>())
+        {
+            r.material.SetFloat("Metallic", 0.5f);
+        }
+        m_material.SetFloat("Metallic", 0.5f);
+    }
 }
 
 

@@ -1,4 +1,4 @@
-﻿#define ROTATECAMERA
+﻿//#define ROTATECAMERA
 using UnityEngine;
 using System.Collections;
 using SharpNeat.Phenomes;
@@ -47,6 +47,8 @@ public class Optimizer : MonoBehaviour {
     //Store _numBestPhenomes phenomes everytime the EA pauses. See ea_PauseEvent
     private const int NumBestPhenomes = 10;
     private List<IBlackBox> _bestPhenomes;
+
+    public ShapeController SelectedController;
 
     #region Unity methods
     // Use this for initialization
@@ -228,7 +230,18 @@ public class Optimizer : MonoBehaviour {
  
         GameObject obj = Instantiate(Unit, new Vector3(xPos, 0, zPos), Unit.transform.rotation) as GameObject;
         UnitController controller = obj.GetComponent<UnitController>();
-
+        controller.MouseDownEvent += (sender, args) =>
+        {
+            var shapeController = sender as ShapeController;
+            if (SelectedController != null)
+            {
+                SelectedController.DeSelect();
+            }
+            if (shapeController != null)
+            {
+                SelectedController = shapeController;
+            }
+        };
         ControllerMap.Add(box, controller);
 
         controller.Activate(box);
