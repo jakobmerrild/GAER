@@ -127,7 +127,7 @@ public class Optimizer : MonoBehaviour {
     #region Listener methods for subscribing to EA events.
     //Fields used to automatically request the EA to pause at certain intervals.
     private ulong _updateCounter;
-    private const uint Intervals = 10; //Adjust this up to make the auto pause happen more rarely, and down for more frequently.
+    private const uint Intervals = 3; //Adjust this up to make the auto pause happen more rarely, and down for more frequently.
     /// <summary>
     /// Callback method for the update event on the EA.
     /// </summary>

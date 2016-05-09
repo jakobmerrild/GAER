@@ -19,12 +19,14 @@ public class ShapeController : UnitController
     private float _threshold = 0.5f;
     private Stopwatch sw = new Stopwatch();
     public int ChildCount;
+    private Color _baseColor;
     // Use this for initialization
     void Start()
     {
         MarchingCubes.SetTarget(_threshold);
         MarchingCubes.SetWindingOrder(0,1,2);
         MarchingCubes.SetModeToCubes();
+        _baseColor = m_material.color;
     }
 
     void FixedUpdate() {    }
@@ -87,20 +89,19 @@ public class ShapeController : UnitController
 
     protected override void OnMouseDown()
     {
+        base.OnMouseDown();
         foreach (var r in GetComponentsInChildren<Renderer>())
         {
-            r.material.SetFloat("Metallic", 1.0f);
+            r.material.color = Color.black;
         }
-        base.OnMouseDown();
     }
 
     public override void DeSelect()
     {
         foreach (var r in GetComponentsInChildren<Renderer>())
         {
-            r.material.SetFloat("Metallic", 0.5f);
+            r.material.color = _baseColor;
         }
-        m_material.SetFloat("Metallic", 0.5f);
     }
 }
 
