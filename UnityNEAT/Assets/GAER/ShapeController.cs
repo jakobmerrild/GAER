@@ -18,7 +18,7 @@ public class ShapeController : UnitController
     private float _threshold = 0.5f;
     private Stopwatch sw = new Stopwatch();
     public int ChildCount;
-    private PhysicsTester.BallDropExperiment _ballDropExperiment;
+    private PhysicsTester.BallDropExperiment _ballDropExperiment =null;
     // Use this for initialization
     void Start()
     {
@@ -76,11 +76,11 @@ public class ShapeController : UnitController
 
     public override void Stop()
     {
-        Destroy(m_mesh);
+        if(_ballDropExperiment != null)
+        {
+            Destroy(_ballDropExperiment.ball);
+        }
     }
 
 
 }
-
-
-

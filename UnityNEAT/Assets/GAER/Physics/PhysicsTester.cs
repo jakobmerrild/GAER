@@ -12,24 +12,24 @@ public class PhysicsTester {
         return sphere;
     }
 
-    public struct BallDropExperiment
+    public class BallDropExperiment
     {
         public GameObject ball;
         public GameObject obj;
-        public Transform ballTransform;
-        public Transform objTransform;
+        public Vector3 ballPosition;
+        public Quaternion objRotation;
 
         public BallDropExperiment(GameObject ball, GameObject obj)
         {
             this.ball = ball;
             this.obj = obj;
 
-            this.ballTransform = Transform.Instantiate(ball.transform);
-            this.objTransform = Transform.Instantiate(obj.transform);
+            this.ballPosition = ball.transform.position;
+            this.objRotation = obj.transform.rotation;
         }
     }
 
-    public struct BallDropResults
+    public class BallDropResults
     {
         public float ballTravelled;
         public float objRotation;
@@ -57,20 +57,20 @@ public class PhysicsTester {
 
     public static BallDropResults MeassureBallDropExperiment(BallDropExperiment exp)
     {
-        Transform newBallTransform = Transform.Instantiate(exp.ball.transform);
-        Transform newObjTransform = Transform.Instantiate(exp.obj.transform);
+        Vector3 newBallPosition = exp.ball.transform.position;
+        Quaternion newObjRotation = exp.obj.transform.rotation;
 
-        Transform oldBallTransform = exp.ballTransform;
-        Transform oldObjTransform = exp.objTransform;
+        Vector3 oldBallPosition = exp.ballPosition;
+        Quaternion oldObjRotation = exp.objRotation;
 
         //ball travel distanve --- we ignore changes in height
-        float x = oldBallTransform.position.x;
-        float z = oldBallTransform.position.z;
-        float _x = newBallTransform.position.x;
-        float _z = newBallTransform.position.z;
+        float x = oldBallPosition.x;
+        float z = oldBallPosition.z;
+        float _x = newBallPosition.x;
+        float _z = newBallPosition.z;
         float ballTravelDistance = Mathf.Sqrt(Mathf.Pow(x - _x,2) + Mathf.Pow(z -_z,2));
 
-        float objRotationDegrees = Quaternion.Angle(newObjTransform.rotation, oldObjTransform.rotation);
+        float objRotationDegrees = Quaternion.Angle(newObjRotation, oldObjRotation);
 
         return new BallDropResults(ballTravelDistance, objRotationDegrees);
     }

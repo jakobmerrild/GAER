@@ -1,4 +1,4 @@
-﻿//#define ROTATECAMERA
+﻿#define ROTATECAMERA
 using UnityEngine;
 using System.Collections;
 using SharpNeat.Phenomes;
@@ -340,7 +340,7 @@ public class Optimizer : MonoBehaviour {
         var camera = GameObject.FindGameObjectWithTag("MainCamera");
         camera.transform.Rotate(Vector3.up, 180.0f);
 #endif
-        var evoSpeed = 100;
+        var evoSpeed = 10;
         if (_ea == null)
         {
             Utility.DebugLog = true;
