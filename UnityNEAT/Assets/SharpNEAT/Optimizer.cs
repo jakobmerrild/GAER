@@ -67,6 +67,11 @@ public class Optimizer : MonoBehaviour {
         bestFileSavePath = Application.persistentDataPath + string.Format("/{0}.best.{1}.xml", "chair", NumBestPhenomes);
 	    StoppingFitness = TestExperiment.Height*TestExperiment.Length*TestExperiment.Width;
         print(champFileSavePath);
+        var camera = GameObject.FindGameObjectWithTag("MainCamera");
+        camera.GetComponent<GhostFreeRoamCamera>().allowMovement = false;
+        camera.GetComponent<GhostFreeRoamCamera>().allowRotation = false;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
 
         //var rng = new System.Random();
         //float[,,] voxels = new float[10,10,10];
