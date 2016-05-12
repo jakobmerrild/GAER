@@ -1,4 +1,4 @@
-﻿//#define ROTATECAMERA
+﻿#define ROTATECAMERA
 using UnityEngine;
 using System.Collections;
 using SharpNeat.Phenomes;
@@ -193,6 +193,11 @@ public class Optimizer : MonoBehaviour {
 #if (ROTATECAMERA)
         var camera = GameObject.FindGameObjectWithTag("MainCamera");
         camera.transform.Rotate(Vector3.up, 180.0f);
+        //Unlock camera movement.
+        camera.GetComponent<GhostFreeRoamCamera>().allowMovement = true;
+        camera.GetComponent<GhostFreeRoamCamera>().allowRotation = true;
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Confined;
 #endif
 
         //System.IO.StreamReader stream = new System.IO.StreamReader(popFileSavePath);
@@ -352,7 +357,14 @@ public class Optimizer : MonoBehaviour {
 #if (ROTATECAMERA)
         var camera = GameObject.FindGameObjectWithTag("MainCamera");
         camera.transform.Rotate(Vector3.up, 180.0f);
+        //lock camera movement
+        camera.GetComponent<GhostFreeRoamCamera>().allowMovement = false;
+        camera.GetComponent<GhostFreeRoamCamera>().allowRotation = false;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
 #endif
+        //Lock the camera
+        
         var evoSpeed = 100;
         if (_ea == null)
         {
