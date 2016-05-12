@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UnityEditor.VersionControl;
+using UnityEngine;
 
 public class PhysicsTester {
 
@@ -8,6 +9,15 @@ public class PhysicsTester {
         sphere.transform.localScale = new Vector3(5, 5, 5);
         sphere.transform.localPosition = new Vector3(dropPoint.x + width / 2, dropPoint.y + height / 2 + 50, dropPoint.z + length / 2);
         sphere.AddComponent<Rigidbody>().useGravity=false;
+
+        return sphere;
+    }
+
+    static GameObject createDropObject2(Vector3 dropPoint, float width, float height, float length)
+    {
+        GameObject sphere = GameObject.Instantiate(Resources.Load("EthanRagdoll")) as GameObject;
+        sphere.transform.localScale = new Vector3(10, 10, 10);
+        sphere.transform.localPosition = new Vector3(dropPoint.x + width / 2, dropPoint.y + height / 2 + 25, dropPoint.z + length / 2);
 
         return sphere;
     }
@@ -49,9 +59,9 @@ public class PhysicsTester {
     public static BallDropExperiment StartBallDropExperiment(GameObject obj)
     {
         Transform objTrans = obj.transform;
-        GameObject dropObj = createDropObject(objTrans.position + new Vector3(0, 5, 0), 5, 5, 5);
+        GameObject dropObj = createDropObject2(objTrans.position + new Vector3(0, 5, 0), 10, 0, 10);
         BallDropExperiment bs = new BallDropExperiment(dropObj, obj);
-        dropObj.GetComponent<Rigidbody>().useGravity = true;
+        //dropObj.GetComponent<Rigidbody>().useGravity = true;
         return bs;
     }
 
