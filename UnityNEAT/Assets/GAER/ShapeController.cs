@@ -34,6 +34,7 @@ public class ShapeController : UnitController
 
     public override void Activate(IBlackBox box)
     {
+        Box = box;
         sw.Start();
         _numVoxels = 0;
         for (int x = 0; x < Width; x++)

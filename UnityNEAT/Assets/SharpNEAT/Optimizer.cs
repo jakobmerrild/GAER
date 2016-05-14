@@ -1,4 +1,5 @@
 ﻿//#define ROTATECAMERA
+#define LOAD_OLD_POPULATION
 using UnityEngine;
 using System.Collections;
 using SharpNeat.Phenomes;
@@ -148,8 +149,7 @@ public class Optimizer : MonoBehaviour {
         //Utility.Log(string.Format("gen={0:N0} bestFitness={1:N6}", _ea.CurrentGeneration, _ea.Statistics._maxFitness));
 
         Fitness = _ea.Statistics._maxFitness;
-        Generation = _ea.CurrentGeneration;
-      
+        Generation = _ea.CurrentGeneration;        
 
     //    Utility.Log(string.Format("Moving average: {0}, N: {1}", _ea.Statistics._bestFitnessMA.Mean, _ea.Statistics._bestFitnessMA.Length));
 
@@ -194,15 +194,16 @@ public class Optimizer : MonoBehaviour {
         }
         DateTime endTime = DateTime.Now;
         Utility.Log("Total time elapsed: " + (endTime - startTime));
-#if (ROTATECAMERA)
+
         var camera = GameObject.FindGameObjectWithTag("MainCamera");
+#if (ROTATECAMERA)
         camera.transform.Rotate(Vector3.up, 180.0f);
+#endif
         //Unlock camera movement.
         camera.GetComponent<GhostFreeRoamCamera>().allowMovement = true;
         camera.GetComponent<GhostFreeRoamCamera>().allowRotation = true;
         Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Confined;
-#endif
+        Cursor.lockState = CursorLockMode.Locked;
 
         //System.IO.StreamReader stream = new System.IO.StreamReader(popFileSavePath);
 
@@ -358,22 +359,28 @@ public class Optimizer : MonoBehaviour {
 
     public void StartEA()
     {
-#if (ROTATECAMERA)
         var camera = GameObject.FindGameObjectWithTag("MainCamera");
+#if (ROTATECAMERA)
         camera.transform.Rotate(Vector3.up, 180.0f);
+#endif
         //lock camera movement
         camera.GetComponent<GhostFreeRoamCamera>().allowMovement = false;
         camera.GetComponent<GhostFreeRoamCamera>().allowRotation = false;
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
-#endif
-        var evoSpeed = 10;
+
+        var evoSpeed = 100;
+
         if (_ea == null)
         {
             Utility.DebugLog = true;
             Utility.Log("Starting PhotoTaxis experiment");
             // print("Loading: " + popFileLoadPath);
+#if (LOAD_OLD_POPULATION)
             _ea = experiment.CreateEvolutionAlgorithm(popFileSavePath);
+#else
+            _ea = experiment.CreateEvolutionAlgorithm();
+#endif
             startTime = DateTime.Now;
 
             _ea.UpdateEvent += ea_UpdateEvent;
@@ -386,6 +393,10 @@ public class Optimizer : MonoBehaviour {
         }
         else if (_ea.RunState == RunState.Paused)
         {
+            if (SelectedController != null)
+            {
+                var selectedPhenome = SelectedController.Box;
+            }
             Time.timeScale = evoSpeed;
             _ea.StartContinue();
             _bestPhenomes.ForEach(StopEvaluation);
@@ -404,5 +415,5 @@ public class Optimizer : MonoBehaviour {
             _ea.RequestPause();
         }
     }
-    #endregion
+#endregion
 }
