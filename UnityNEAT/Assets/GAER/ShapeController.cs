@@ -93,7 +93,12 @@ public class ShapeController : UnitController
         float fitnessCost =  ChildCount + rotationTerm + ballTravelTerm + ballRestTerm;
         print("fitnesscost: " + fitnessCost);
 
-        return float.MaxValue - fitnessCost;
+        Fitness = float.MaxValue / 3.0f - fitnessCost;
+        if (Fitness < 0.0 || float.IsNaN(Fitness) || float.IsInfinity(Fitness))
+        {
+            Fitness = 0.0f;
+        }
+        return Fitness;
     }
 
     public override void Stop()

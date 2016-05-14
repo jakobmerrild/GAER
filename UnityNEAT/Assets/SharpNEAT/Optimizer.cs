@@ -1,5 +1,4 @@
 ﻿//#define ROTATECAMERA
-#define LOAD_OLD_POPULATION
 using UnityEngine;
 using System.Collections;
 using SharpNeat.Phenomes;
@@ -48,8 +47,15 @@ public class Optimizer : MonoBehaviour {
     //Store _numBestPhenomes phenomes everytime the EA pauses. See ea_PauseEvent
     private const int NumBestPhenomes = 10;
     private List<IBlackBox> _bestPhenomes;
-    private bool _loadOldPopulation;
+    private List<NeatGenome> _bestGenomes;
+    private Dictionary<IBlackBox, NeatGenome> _phenomesMap = new Dictionary<IBlackBox, NeatGenome>();
+
+    private bool _LoadOldPopulation;
     public ShapeController SelectedController;
+    private uint SelectedGenomeId;
+    private int SelectedGeneration;
+    private int DecayTime = 10;
+    private float SelectionBoost = 1e5f;
 
     #region Unity methods
     // Use this for initialization
@@ -183,14 +189,17 @@ public class Optimizer : MonoBehaviour {
             experiment.SavePopulation(xw, new NeatGenome[] { _ea.CurrentChampGenome });
         }
         // save the _numBestPhenomes best phenomes and evaluate them(show them on screen.)
+        
         var decoder = experiment.CreateGenomeDecoder();
-        var bestGenomes = _ea.GenomeList.OrderByDescending(x => x.EvaluationInfo.Fitness).Take(NumBestPhenomes).ToList();
-        _bestPhenomes = bestGenomes.Select(x => decoder.Decode(x)).ToList();
+        _bestGenomes = _ea.GenomeList.OrderByDescending(x => x.EvaluationInfo.Fitness).Take(NumBestPhenomes).ToList();
+        
+        _bestPhenomes = _bestGenomes.Select(x => decoder.Decode(x)).ToList();
+        _bestPhenomes.Select((k, i) => new {k, v = _bestGenomes[i]}).ToList().ForEach(x => UpdateMaps(x.k, x.v));
         _bestPhenomes.ForEach(Evaluate);
         ResetCounters(); //Hack to reset the counters used to calculate the position of the objects.
         using (XmlWriter xw = XmlWriter.Create(bestFileSavePath, _xwSettings))
         {
-            experiment.SavePopulation(xw, bestGenomes);
+            experiment.SavePopulation(xw, _bestGenomes);
         }
         DateTime endTime = DateTime.Now;
         Utility.Log("Total time elapsed: " + (endTime - startTime));
@@ -205,8 +214,8 @@ public class Optimizer : MonoBehaviour {
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
 
-        //System.IO.StreamReader stream = new System.IO.StreamReader(popFileSavePath);
 
+        //System.IO.StreamReader stream = new System.IO.StreamReader(popFileSavePath);
         _eaRunning = false;        
         
     }
@@ -309,6 +318,11 @@ public class Optimizer : MonoBehaviour {
         }
         return 0;
     }
+
+    public void UpdateMaps(IBlackBox box, NeatGenome genome)
+    {
+        _phenomesMap.Add(box, genome);
+    }
     #endregion
 
     #region Utility methods
@@ -343,8 +357,8 @@ public class Optimizer : MonoBehaviour {
         {
             RunBest();
         }
-        _loadOldPopulation = GUI.Toggle(new Rect(10, 210, 100, 40), false, "Load Old Population");
-        GUI.Button(new Rect(10, Screen.height - 70, 100, 60), string.Format("Generation: {0}\nFitness: {1:0.00}", Generation, -1* (Fitness - float.MaxValue)));
+        _LoadOldPopulation = GUI.Toggle(new Rect(10, 210, 200, 40), _LoadOldPopulation, "Load old population.");
+        GUI.Button(new Rect(10, Screen.height - 70, 100, 60), string.Format("Generation: {0}\nFitness: {1:0.00}", Generation, Fitness - float.MaxValue));
     }
     /// <summary>
     /// Method to be called by the Stop EA button
@@ -360,6 +374,7 @@ public class Optimizer : MonoBehaviour {
 
     public void StartEA()
     {
+
         var camera = GameObject.FindGameObjectWithTag("MainCamera");
 #if (ROTATECAMERA)
         camera.transform.Rotate(Vector3.up, 180.0f);
@@ -401,6 +416,8 @@ public class Optimizer : MonoBehaviour {
             if (SelectedController != null)
             {
                 var selectedPhenome = SelectedController.Box;
+                var selectedGenome = _phenomesMap[selectedPhenome];
+                selectedGenome.EvaluationInfo.SetFitness(float.MaxValue);
             }
             Time.timeScale = evoSpeed;
             _ea.StartContinue();
@@ -420,5 +437,40 @@ public class Optimizer : MonoBehaviour {
             _ea.RequestPause();
         }
     }
-#endregion
+    public void RunBest()
+    {
+        Time.timeScale = 1;
+
+        NeatGenome genome = null;
+
+
+        // Try to load the genome from the XML document.
+        try
+        {
+            using (XmlReader xr = XmlReader.Create(champFileSavePath))
+                genome = NeatGenomeXmlIO.ReadCompleteGenomeList(xr, false, (NeatGenomeFactory)experiment.CreateGenomeFactory())[0];
+
+
+        }
+        catch (Exception)
+        {
+            // print(champFileLoadPath + " Error loading genome from file!\nLoading aborted.\n"
+            //						  + e1.Message + "\nJoe: " + champFileLoadPath);
+            return;
+        }
+
+        // Get a genome decoder that can convert genomes to phenomes.
+        var genomeDecoder = experiment.CreateGenomeDecoder();
+
+        // Decode the genome into a phenome (neural network).
+        var phenome = genomeDecoder.Decode(genome);
+
+        GameObject obj = Instantiate(Unit, Unit.transform.position, Unit.transform.rotation) as GameObject;
+        UnitController controller = obj.GetComponent<UnitController>();
+
+        ControllerMap.Add(phenome, controller);
+
+        controller.Activate(phenome);
+    }
+    #endregion
 }
