@@ -21,6 +21,10 @@ public class ShapeController : UnitController
     public int ChildCount;
     private PhysicsTester.BallDropExperiment _ballDropExperiment =null;
     private Color _baseColor;
+    public float rotationTerm;
+    public float ballTravelTerm;
+    public float ballRestTerm;
+    public float fitnessCost;
     // Use this for initialization
     void Start()
     {
@@ -75,25 +79,25 @@ public class ShapeController : UnitController
 
         print("Balldrop: " + bdResults);
         //exponential function of rotation, scaled to two times the possible value of ChildCount
-        float rotationTerm = (Mathf.Pow(2, bdResults.objRotation) / (Mathf.Pow(2,180)) * Height*Length*Width/2);
+        rotationTerm = (Mathf.Pow(2, bdResults.objRotation) / (Mathf.Pow(2,180)) * Height*Length*Width/2);
         print("rot angle: " + bdResults.objRotation);
         print("rotation term: " + rotationTerm);
 
         //exponential function of ball travel distance
-        float ballTravelTerm = Mathf.Pow(2, bdResults.ballTravelled);
+        ballTravelTerm = Mathf.Pow(2, bdResults.ballTravelled);
         print("ball travel term: " + ballTravelTerm);
 
-        float ballRestTerm = -bdResults.ballRestHeight;
+        float deltaMiddle= bdResults.ballRestHeight - ((TestExperiment.Height + 1.5f) / 2);
+        ballRestTerm = -Mathf.Pow(2,deltaMiddle+2);
         print("ball rest term: " + ballRestTerm);
 
         print("material cost term: " + ChildCount);
 
         //Less is better
-        float fitnessCost =  ChildCount + rotationTerm + ballTravelTerm + ballRestTerm;
+        fitnessCost =  ChildCount + rotationTerm + ballTravelTerm + ballRestTerm;
         print("fitnesscost: " + fitnessCost);
 
-        //return float.MaxValue - fitnessCost;
-        return ChildCount;
+        return float.MaxValue - fitnessCost;
     }
 
     public override void Stop()

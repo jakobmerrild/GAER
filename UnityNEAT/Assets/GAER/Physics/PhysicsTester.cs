@@ -1,13 +1,16 @@
 ﻿using UnityEngine;
+using GAER;
 
 public class PhysicsTester {
 
-    static GameObject createDropObject(Vector3 dropPoint, float width, float height, float length)
+    static GameObject createDropObject(Vector3 dropPoint)
     {
         GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        sphere.transform.localScale = new Vector3(5, 5, 5);
-        sphere.transform.localPosition = new Vector3(dropPoint.x + width / 2, dropPoint.y + height / 2 + 50, dropPoint.z + length / 2);
-        sphere.AddComponent<Rigidbody>().useGravity=false;
+        sphere.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+        sphere.transform.localPosition = dropPoint;
+        Rigidbody rb = sphere.AddComponent<Rigidbody>();
+        rb.useGravity = false;
+        rb.mass = 2;
 
         return sphere;
     }
@@ -51,7 +54,7 @@ public class PhysicsTester {
     public static BallDropExperiment StartBallDropExperiment(GameObject obj)
     {
         Transform objTrans = obj.transform;
-        GameObject dropObj = createDropObject(objTrans.position + new Vector3(0, 5, 0), 5, 5, 5);
+        GameObject dropObj = createDropObject(objTrans.position + new Vector3(TestExperiment.Width/2, TestExperiment.Height+5, TestExperiment.Length/2));
         BallDropExperiment bs = new BallDropExperiment(dropObj, obj);
         dropObj.GetComponent<Rigidbody>().useGravity = true;
         return bs;
