@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using SharpNeat.Core;
 using System.Collections;
+using SharpNeat.Genomes.Neat;
+using SharpNeat.Phenomes;
 using UnityEngine;
 
 namespace SharpNEAT.Core
@@ -73,6 +75,7 @@ namespace SharpNEAT.Core
                         {
                             fitnessDict.Add(genome, new FitnessInfo[_optimizer.Trials]);
                         }
+
                         dict.Add(genome, phenome);
                         //if (!dict.ContainsKey(genome))
                         //{
@@ -119,6 +122,13 @@ namespace SharpNEAT.Core
                     {
                       //  Utility.Log("Fitness is " + fit + ", stopping now because stopping fitness is " + _optimizer.StoppingFitness);
                       //  _phenomeEvaluator.StopConditionSatisfied = true;
+                    }
+                    if (_optimizer.SelectedGenomeId == genome.Id)
+                    {
+                        if (_optimizer.TimeSinceSelection < Optimizer.DecayTime)
+                        {
+                            fitness += _optimizer.TimeSinceSelection*Optimizer.SelectionBoost;
+                        }
                     }
                     genome.EvaluationInfo.SetFitness(fitness);
                     genome.EvaluationInfo.AuxFitnessArr = fitnessDict[genome][0]._auxFitnessArr;
