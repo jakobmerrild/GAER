@@ -1,4 +1,5 @@
 ﻿//#define ROTATECAMERA
+#define LOAD_OLD_POPULATION
 using UnityEngine;
 using System.Collections;
 using SharpNeat.Phenomes;
@@ -375,7 +376,11 @@ public class Optimizer : MonoBehaviour {
             Utility.DebugLog = true;
             Utility.Log("Starting PhotoTaxis experiment");
             // print("Loading: " + popFileLoadPath);
+#if (LOAD_OLD_POPULATION)
             _ea = experiment.CreateEvolutionAlgorithm(popFileSavePath);
+#else
+            _ea = experiment.CreateEvolutionAlgorithm();
+#endif
             startTime = DateTime.Now;
 
             _ea.UpdateEvent += ea_UpdateEvent;
@@ -410,5 +415,5 @@ public class Optimizer : MonoBehaviour {
             _ea.RequestPause();
         }
     }
-    #endregion
+#endregion
 }
