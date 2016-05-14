@@ -9,7 +9,7 @@ public class PhysicsTester {
     {
         GameObject ragdoll = GameObject.Instantiate(Resources.Load("EthanRagdoll")) as GameObject;
         //ragdoll.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
-        ragdoll.transform.localPosition = new Vector3(dropPoint.x + TestExperiment.Width / 2, dropPoint.y + TestExperiment.Height+1, dropPoint.z + TestExperiment.Length / 2);
+        ragdoll.transform.localPosition = new Vector3(dropPoint.x + TestExperiment.Width / 2, dropPoint.y + TestExperiment.Height+1, dropPoint.z + TestExperiment.Length / 2 + 4);
         ragdoll.AddComponent<StopSphereFromFalling>();
         var rb = ragdoll.GetComponents<Rigidbody>();
 
