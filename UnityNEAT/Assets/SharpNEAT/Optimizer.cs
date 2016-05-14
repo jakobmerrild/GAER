@@ -1,4 +1,4 @@
-﻿//#define ROTATECAMERA
+﻿#define ROTATECAMERA
 using UnityEngine;
 using System.Collections;
 using SharpNeat.Phenomes;
@@ -42,7 +42,7 @@ public class Optimizer : MonoBehaviour {
     private int _xCounter, _zCounter, _counter; //Counters used when calculating the position of objects.
     private int _xOffset = -200;
     private int _xLimit = 200;
-    private int _xFactor = TestExperiment.Width+6 , _zFactor = TestExperiment.Length + 6;
+    private int _xFactor = TestExperiment.Width*4 , _zFactor = TestExperiment.Length*4;
 
     //Store _numBestPhenomes phenomes everytime the EA pauses. See ea_PauseEvent
     private const int NumBestPhenomes = 10;
@@ -140,7 +140,7 @@ public class Optimizer : MonoBehaviour {
     #region Listener methods for subscribing to EA events.
     //Fields used to automatically request the EA to pause at certain intervals.
     private ulong _updateCounter;
-    private const uint Intervals = 3; //Adjust this up to make the auto pause happen more rarely, and down for more frequently.
+    private const uint Intervals = 10; //Adjust this up to make the auto pause happen more rarely, and down for more frequently.
     /// <summary>
     /// Callback method for the update event on the EA.
     /// </summary>
@@ -191,7 +191,16 @@ public class Optimizer : MonoBehaviour {
             experiment.SavePopulation(xw, new NeatGenome[] { _ea.CurrentChampGenome });
         }
         // save the _numBestPhenomes best phenomes and evaluate them(show them on screen.)
-        
+        var camera = GameObject.FindGameObjectWithTag("MainCamera");
+#if (ROTATECAMERA)
+        camera.transform.position = new Vector3(-100, 70, -100);
+        camera.transform.rotation = Quaternion.Euler(30, 0, 0);
+#endif
+        //Unlock camera movement.
+        camera.GetComponent<GhostFreeRoamCamera>().allowMovement = true;
+        camera.GetComponent<GhostFreeRoamCamera>().allowRotation = true;
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
         var decoder = experiment.CreateGenomeDecoder();
         _bestGenomes = _ea.GenomeList.OrderByDescending(x => x.EvaluationInfo.Fitness).Take(NumBestPhenomes).ToList();
         
@@ -206,15 +215,7 @@ public class Optimizer : MonoBehaviour {
         DateTime endTime = DateTime.Now;
         Utility.Log("Total time elapsed: " + (endTime - startTime));
 
-        var camera = GameObject.FindGameObjectWithTag("MainCamera");
-#if (ROTATECAMERA)
-        camera.transform.Rotate(Vector3.up, 180.0f);
-#endif
-        //Unlock camera movement.
-        camera.GetComponent<GhostFreeRoamCamera>().allowMovement = true;
-        camera.GetComponent<GhostFreeRoamCamera>().allowRotation = true;
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
+
 
 
         //System.IO.StreamReader stream = new System.IO.StreamReader(popFileSavePath);
@@ -340,7 +341,8 @@ public class Optimizer : MonoBehaviour {
 
         var camera = GameObject.FindGameObjectWithTag("MainCamera");
 #if (ROTATECAMERA)
-        camera.transform.Rotate(Vector3.up, 180.0f);
+        camera.transform.position = new Vector3(0, 20, -200);
+        camera.transform.rotation = Quaternion.Euler(0,180, 0);
 #endif
         //lock camera movement
         camera.GetComponent<GhostFreeRoamCamera>().allowMovement = false;
