@@ -50,7 +50,7 @@ public class Optimizer : MonoBehaviour {
     private List<NeatGenome> _bestGenomes;
     private Dictionary<IBlackBox, NeatGenome> _phenomesMap = new Dictionary<IBlackBox, NeatGenome>();
 
-    private bool _LoadOldPopulation;
+    private bool _loadOldPopulation;
     public ShapeController SelectedController;
     private uint SelectedGenomeId;
     private int SelectedGeneration;
@@ -274,42 +274,6 @@ public class Optimizer : MonoBehaviour {
         //ControllerMap.Remove(box);
     }
 
-    public void RunBest()
-    {
-        Time.timeScale = 1;
-
-        NeatGenome genome = null;
-
-
-        // Try to load the genome from the XML document.
-        try
-        {
-            using (XmlReader xr = XmlReader.Create(champFileSavePath))
-                genome = NeatGenomeXmlIO.ReadCompleteGenomeList(xr, false, (NeatGenomeFactory)experiment.CreateGenomeFactory())[0];
-
-
-        }
-        catch (Exception)
-        {
-            // print(champFileLoadPath + " Error loading genome from file!\nLoading aborted.\n"
-            //						  + e1.Message + "\nJoe: " + champFileLoadPath);
-            return;
-        }
-
-        // Get a genome decoder that can convert genomes to phenomes.
-        var genomeDecoder = experiment.CreateGenomeDecoder();
-
-        // Decode the genome into a phenome (neural network).
-        var phenome = genomeDecoder.Decode(genome);
-
-        GameObject obj = Instantiate(Unit, Unit.transform.position, Unit.transform.rotation) as GameObject;
-        UnitController controller = obj.GetComponent<UnitController>();
-
-        ControllerMap.Add(phenome, controller);
-
-        controller.Activate(phenome);
-    }
-
     public float GetFitness(IBlackBox box)
     {
         if (ControllerMap.ContainsKey(box))
@@ -357,7 +321,7 @@ public class Optimizer : MonoBehaviour {
         {
             RunBest();
         }
-        _LoadOldPopulation = GUI.Toggle(new Rect(10, 210, 200, 40), _LoadOldPopulation, "Load old population.");
+        _loadOldPopulation = GUI.Toggle(new Rect(10, 210, 200, 40), _loadOldPopulation, "Load old population.");
         GUI.Button(new Rect(10, Screen.height - 70, 100, 60), string.Format("Generation: {0}\nFitness: {1:0.00}", Generation, Fitness - float.MaxValue));
     }
     /// <summary>

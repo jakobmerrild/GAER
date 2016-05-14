@@ -21,6 +21,7 @@ public class ShapeController : UnitController
     public int ChildCount;
     private PhysicsTester.BallDropExperiment _ballDropExperiment =null;
     private Color _baseColor;
+    public float Fitness;
     // Use this for initialization
     void Start()
     {
