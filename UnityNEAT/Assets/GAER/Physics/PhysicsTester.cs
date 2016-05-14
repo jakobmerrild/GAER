@@ -33,11 +33,13 @@ public class PhysicsTester {
     {
         public float ballTravelled;
         public float objRotation;
+        public float ballRestHeight;
 
-        public BallDropResults(float ballTravelled, float objRotation)
+        public BallDropResults(float ballTravelled, float objRotation, float ballRestHeight)
         {
             this.ballTravelled = ballTravelled;
             this.objRotation = objRotation;
+            this.ballRestHeight = ballRestHeight;
         }
 
         public override string ToString()
@@ -70,9 +72,11 @@ public class PhysicsTester {
         float _z = newBallPosition.z;
         float ballTravelDistance = Mathf.Sqrt(Mathf.Pow(x - _x,2) + Mathf.Pow(z -_z,2));
 
+        float ballHeight = newBallPosition.y;
+
         float objRotationDegrees = Quaternion.Angle(newObjRotation, oldObjRotation);
 
-        return new BallDropResults(ballTravelDistance, objRotationDegrees);
+        return new BallDropResults(ballTravelDistance, objRotationDegrees, ballHeight);
     }
 
 }
