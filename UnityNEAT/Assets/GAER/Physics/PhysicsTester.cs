@@ -1,11 +1,16 @@
-﻿using UnityEngine;
+﻿using Assets.GAER.Physics;
+using UnityEngine;
 using GAER;
+using JetBrains.Annotations;
 
 public class PhysicsTester {
 
     static GameObject createDropObject(Vector3 dropPoint)
     {
+
         GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        sphere.AddComponent<StopSphereFromFalling>();
+
         sphere.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
         sphere.transform.localPosition = dropPoint;
         Rigidbody rb = sphere.AddComponent<Rigidbody>();

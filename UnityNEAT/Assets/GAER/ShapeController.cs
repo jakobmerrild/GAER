@@ -97,7 +97,7 @@ public class ShapeController : UnitController
         fitnessCost =  ChildCount + rotationTerm + ballTravelTerm + ballRestTerm;
         print("fitnesscost: " + fitnessCost);
 
-        return float.MaxValue - fitnessCost;
+        return float.MaxValue/3.0f - fitnessCost;
     }
 
     public override void Stop()
