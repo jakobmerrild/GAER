@@ -89,8 +89,8 @@ public class ShapeController : UnitController
         ballTravelTerm = Mathf.Min(1000, Mathf.Pow(2, bdResults.ballTravelled+5));
         print("ball travel term: " + ballTravelTerm);
 
-        float deltaMiddle= bdResults.ballRestHeight - ((TestExperiment.Height + 1.5f) / 2);
-        ballRestTerm = Mathf.Pow(2,-(deltaMiddle+2));
+        float deltaMiddle= bdResults.ballRestHeight - ((TestExperiment.Height + 2f) / 2);
+        ballRestTerm = Mathf.Pow(2,-(deltaMiddle*2));
         print("ball rest term: " + ballRestTerm);
 
         print("material cost term: " + ChildCount);
