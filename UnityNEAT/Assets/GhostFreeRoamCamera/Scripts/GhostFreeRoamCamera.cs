@@ -73,9 +73,19 @@ public class GhostFreeRoamCamera : MonoBehaviour
                 if (!togglePressed)
                 {
                     togglePressed = true;
-                    Screen.lockCursor = !Screen.lockCursor;
+                    if (Cursor.lockState == CursorLockMode.Locked)
+                    {
+                        Cursor.lockState = CursorLockMode.None;
+                    }
+                    else
+                    {
+                        Cursor.lockState = CursorLockMode.Locked;
+                    }
                     Cursor.visible = !Cursor.visible;
+                    allowRotation = !allowRotation;
+                    allowMovement = !allowMovement;
                 }
+               
             }
             else togglePressed = false;
         }
