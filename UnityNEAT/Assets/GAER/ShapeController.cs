@@ -3,6 +3,7 @@ using System.Collections;
 using SharpNeat.Phenomes;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using GAER;
 using MarchingCubesProject;
 
@@ -19,12 +20,14 @@ public class ShapeController : UnitController
     private Stopwatch sw = new Stopwatch();
     public int ChildCount;
     private PhysicsTester.BallDropExperiment _ballDropExperiment =null;
+    private Color _baseColor;
     // Use this for initialization
     void Start()
     {
         MarchingCubes.SetTarget(_threshold);
         MarchingCubes.SetWindingOrder(0,1,2);
         MarchingCubes.SetModeToCubes();
+        _baseColor = m_material.color;
     }
 
     void FixedUpdate() {    }
@@ -100,5 +103,20 @@ public class ShapeController : UnitController
         }
     }
 
+    protected override void OnMouseDown()
+    {
+        base.OnMouseDown();
+        foreach (var r in GetComponentsInChildren<Renderer>())
+        {
+            r.material.color = Color.black;
+        }
+    }
 
+    public override void DeSelect()
+    {
+        foreach (var r in GetComponentsInChildren<Renderer>())
+        {
+            r.material.color = _baseColor;
+        }
+    }
 }

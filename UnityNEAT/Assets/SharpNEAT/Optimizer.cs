@@ -48,6 +48,8 @@ public class Optimizer : MonoBehaviour {
     private const int NumBestPhenomes = 10;
     private List<IBlackBox> _bestPhenomes;
 
+    public ShapeController SelectedController;
+
     #region Unity methods
     // Use this for initialization
     void Start () {
@@ -65,6 +67,11 @@ public class Optimizer : MonoBehaviour {
         bestFileSavePath = Application.persistentDataPath + string.Format("/{0}.best.{1}.xml", "chair", NumBestPhenomes);
         StoppingFitness = float.MaxValue; //never stop for fitness (only stop for what?)
         print(champFileSavePath);
+        var camera = GameObject.FindGameObjectWithTag("MainCamera");
+        camera.GetComponent<GhostFreeRoamCamera>().allowMovement = false;
+        camera.GetComponent<GhostFreeRoamCamera>().allowRotation = false;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
 
         //var rng = new System.Random();
         //float[,,] voxels = new float[10,10,10];
@@ -124,7 +131,7 @@ public class Optimizer : MonoBehaviour {
     #region Listener methods for subscribing to EA events.
     //Fields used to automatically request the EA to pause at certain intervals.
     private ulong _updateCounter;
-    private const uint Intervals = 10; //Adjust this up to make the auto pause happen more rarely, and down for more frequently.
+    private const uint Intervals = 3; //Adjust this up to make the auto pause happen more rarely, and down for more frequently.
     /// <summary>
     /// Callback method for the update event on the EA.
     /// </summary>
@@ -190,6 +197,11 @@ public class Optimizer : MonoBehaviour {
 #if (ROTATECAMERA)
         var camera = GameObject.FindGameObjectWithTag("MainCamera");
         camera.transform.Rotate(Vector3.up, 180.0f);
+        //Unlock camera movement.
+        camera.GetComponent<GhostFreeRoamCamera>().allowMovement = true;
+        camera.GetComponent<GhostFreeRoamCamera>().allowRotation = true;
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Confined;
 #endif
 
         //System.IO.StreamReader stream = new System.IO.StreamReader(popFileSavePath);
@@ -227,7 +239,18 @@ public class Optimizer : MonoBehaviour {
  
         GameObject obj = Instantiate(Unit, new Vector3(xPos, 0, zPos), Unit.transform.rotation) as GameObject;
         UnitController controller = obj.GetComponent<UnitController>();
-
+        controller.MouseDownEvent += (sender, args) =>
+        {
+            var shapeController = sender as ShapeController;
+            if (SelectedController != null)
+            {
+                SelectedController.DeSelect();
+            }
+            if (shapeController != null)
+            {
+                SelectedController = shapeController;
+            }
+        };
         ControllerMap.Add(box, controller);
 
         controller.Activate(box);
@@ -338,6 +361,11 @@ public class Optimizer : MonoBehaviour {
 #if (ROTATECAMERA)
         var camera = GameObject.FindGameObjectWithTag("MainCamera");
         camera.transform.Rotate(Vector3.up, 180.0f);
+        //lock camera movement
+        camera.GetComponent<GhostFreeRoamCamera>().allowMovement = false;
+        camera.GetComponent<GhostFreeRoamCamera>().allowRotation = false;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
 #endif
         var evoSpeed = 10;
         if (_ea == null)
