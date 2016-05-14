@@ -80,8 +80,8 @@ public class ShapeController : UnitController
         PhysicsTester.BallDropResults bdResults = PhysicsTester.MeassureBallDropExperiment(_ballDropExperiment);
 
         print("Balldrop: " + bdResults);
-        //exponential function of rotation, scaled to two times the possible value of ChildCount
-        rotationTerm = 0;//(Mathf.Pow(2, bdResults.objRotation) / (Mathf.Pow(2,180)) * Height*Length*Width/2);
+        //pot function of rotation, scaled to two times the possible value of ChildCount
+        rotationTerm = (Mathf.Pow(bdResults.objRotation, 3) / (Mathf.Pow(180,3)) * Height*Length*Width/2);
         print("rot angle: " + bdResults.objRotation);
         print("rotation term: " + rotationTerm);
 
