@@ -82,24 +82,42 @@ public class ShapeController : UnitController
         print("Balldrop: " + bdResults);
         //pot function of rotation, scaled to two times the possible value of ChildCount
         rotationTerm = (Mathf.Pow(bdResults.objRotation, 3) / (Mathf.Pow(180,3)) * Height*Length*Width/2);
-        print("rot angle: " + bdResults.objRotation);
-        print("rotation term: " + rotationTerm);
+        //print("rot angle: " + bdResults.objRotation);
+        //print("rotation term: " + rotationTerm);
 
         //exponential function of ball travel distance
         ballTravelTerm = Mathf.Min(1000, Mathf.Pow(2, bdResults.ballTravelled+5));
-        print("ball travel term: " + ballTravelTerm);
+        //print("ball travel term: " + ballTravelTerm);
 
         float deltaMiddle= bdResults.ballRestHeight - ((TestExperiment.Height + 2f) / 2);
         ballRestTerm = Mathf.Pow(2,-(deltaMiddle*2));
-        print("ball rest term: " + ballRestTerm);
+        //print("ball rest term: " + ballRestTerm);
 
-        print("material cost term: " + ChildCount);
+        //print("material cost term: " + ChildCount);
 
         //Less is better
         fitnessCost =  ChildCount + rotationTerm + ballTravelTerm + ballRestTerm;
         print("fitnesscost: " + fitnessCost);
 
-        return (ChildCount == 0) ? 0 : float.MaxValue/3.0f - fitnessCost;
+	float maxRotation = Height*Length*Width/2;
+	float maxBallTravel = 1000;
+	float maxBallRest = Mathf.Pow(2,-(TestExperiment.Height+2f)/2);
+	float maxChildCount = Height * Length * Width;
+
+	if (rotationTerm > maxRotation) {
+		throw new SystemException("rotation term above assumed max");
+	}
+	if (ballTravelTerm > maxBallTravel) {
+		throw new SystemException("ball travel term above assumed max");
+	}
+	if (ballRestTerm > maxBallRest) {
+		throw new SystemException("ball travel term above assumed max");
+	}
+	if (maxChildCount > maxChildCount) {
+		throw new SystemException("ball travel term above assumed max");
+	}
+
+        return (ChildCount == 0) ? 0 : (ChildCount + maxRotation * maxBallTravel * maxBallRest) - fitnessCost;
     }
 
     public override void Stop()
