@@ -48,7 +48,7 @@ public class Optimizer : MonoBehaviour {
     //Store _numBestPhenomes phenomes everytime the EA pauses. See ea_PauseEvent
     private const int NumBestPhenomes = 10;
     private List<IBlackBox> _bestPhenomes;
-
+    private bool _loadOldPopulation;
     public ShapeController SelectedController;
 
     #region Unity methods
@@ -343,6 +343,7 @@ public class Optimizer : MonoBehaviour {
         {
             RunBest();
         }
+        _loadOldPopulation = GUI.Toggle(new Rect(10, 210, 100, 40), false, "Load Old Population");
         GUI.Button(new Rect(10, Screen.height - 70, 100, 60), string.Format("Generation: {0}\nFitness: {1:0.00}", Generation, -1* (Fitness - float.MaxValue)));
     }
     /// <summary>
@@ -376,11 +377,15 @@ public class Optimizer : MonoBehaviour {
             Utility.DebugLog = true;
             Utility.Log("Starting PhotoTaxis experiment");
             // print("Loading: " + popFileLoadPath);
-#if (LOAD_OLD_POPULATION)
-            _ea = experiment.CreateEvolutionAlgorithm(popFileSavePath);
-#else
-            _ea = experiment.CreateEvolutionAlgorithm();
-#endif
+            if (_loadOldPopulation)
+            {
+                _ea = experiment.CreateEvolutionAlgorithm(popFileSavePath);
+            }
+            else
+            {
+                _ea = experiment.CreateEvolutionAlgorithm();
+            }
+
             startTime = DateTime.Now;
 
             _ea.UpdateEvent += ea_UpdateEvent;
