@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
     <Config>
-      <PopulationSize>50</PopulationSize>
-      <SpecieCount>1</SpecieCount>
+
+      <PopulationSize>12</PopulationSize>
+      <SpecieCount>2</SpecieCount>
       <Activation>
         <Scheme>Acyclic</Scheme>
       </Activation>
