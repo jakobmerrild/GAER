@@ -52,10 +52,11 @@ public class Optimizer : MonoBehaviour {
 
     private bool _loadOldPopulation;
     public ShapeController SelectedController;
-    private uint SelectedGenomeId;
-    private int SelectedGeneration;
-    private int DecayTime = 10;
-    private float SelectionBoost = 1e5f;
+    public uint SelectedGenomeId { get; private set; }
+    public uint SelectedGeneration { get; private set; }
+    public int TimeSinceSelection { get { return (int) _ea.CurrentGeneration - (int) SelectedGeneration; }}
+    public const int DecayTime = 10;
+    public const float SelectionBoost = 1e5f;
 
     #region Unity methods
     // Use this for initialization
@@ -194,7 +195,7 @@ public class Optimizer : MonoBehaviour {
         _bestGenomes = _ea.GenomeList.OrderByDescending(x => x.EvaluationInfo.Fitness).Take(NumBestPhenomes).ToList();
         
         _bestPhenomes = _bestGenomes.Select(x => decoder.Decode(x)).ToList();
-        _bestPhenomes.Select((k, i) => new {k, v = _bestGenomes[i]}).ToList().ForEach(x => UpdateMaps(x.k, x.v));
+        _phenomesMap = _bestPhenomes.Select((k, i) => new {k, v = _bestGenomes[i]}).ToDictionary(x => x.k,x => x.v);
         _bestPhenomes.ForEach(Evaluate);
         ResetCounters(); //Hack to reset the counters used to calculate the position of the objects.
         using (XmlWriter xw = XmlWriter.Create(bestFileSavePath, _xwSettings))
@@ -276,17 +277,13 @@ public class Optimizer : MonoBehaviour {
 
     public float GetFitness(IBlackBox box)
     {
-        if (ControllerMap.ContainsKey(box))
+        if(ControllerMap.ContainsKey(box))
         {
             return ControllerMap[box].GetFitness();
         }
         return 0;
     }
 
-    public void UpdateMaps(IBlackBox box, NeatGenome genome)
-    {
-        _phenomesMap.Add(box, genome);
-    }
     #endregion
 
     #region Utility methods
@@ -382,6 +379,8 @@ public class Optimizer : MonoBehaviour {
                 var selectedPhenome = SelectedController.Box;
                 var selectedGenome = _phenomesMap[selectedPhenome];
                 selectedGenome.EvaluationInfo.SetFitness(float.MaxValue);
+                SelectedGenomeId = selectedGenome.Id;
+                SelectedGeneration = _ea.CurrentGeneration;
             }
             Time.timeScale = evoSpeed;
             _ea.StartContinue();
