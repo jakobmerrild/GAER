@@ -1,6 +1,7 @@
 using UnityEngine;
 using GAER;
 
+
 public class PhysicsTester {
 
     static GameObject createDropObject(Vector3 dropPoint)
@@ -9,13 +10,13 @@ public class PhysicsTester {
         //ragdoll.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
         ragdoll.transform.localPosition = new Vector3(dropPoint.x + TestExperiment.Width / 2, dropPoint.y + TestExperiment.Height / 2 + 50, dropPoint.z + TestExperiment.Length / 2);
        
-        //var rb = ragdoll.GetComponents<Rigidbody>();
+        var rb = ragdoll.GetComponents<Rigidbody>();
 
-        /*foreach (var rib in rb)
+        foreach (var rib in rb)
         {
             rib.useGravity = false;
         }
-*/
+
         return ragdoll;
     }
 
@@ -59,16 +60,16 @@ public class PhysicsTester {
     {
         Transform objTrans = obj.transform;
 
-        GameObject dropObj = createDropObject(objTrans.position + new Vector3(0, 5, 0));
+        GameObject dropObj = createDropObject(objTrans.position + new Vector3(TestExperiment.Width/2, TestExperiment.Height+5, TestExperiment.Length/2));
 
         BallDropExperiment bs = new BallDropExperiment(dropObj, obj);
 
-        /*var rb = dropObj.GetComponents<Rigidbody>();
+        var rb = dropObj.GetComponents<Rigidbody>();
 
         foreach (var rib in rb)
         {
             rib.useGravity = true;
-        }*/
+        }
         return bs;
     }
 
