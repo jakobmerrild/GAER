@@ -86,7 +86,7 @@ public class ShapeController : UnitController
         print("rotation term: " + rotationTerm);
 
         //exponential function of ball travel distance
-        ballTravelTerm = Mathf.Max(1000, Mathf.Pow(2, bdResults.ballTravelled+5));
+        ballTravelTerm = Mathf.Min(1000, Mathf.Pow(2, bdResults.ballTravelled+5));
         print("ball travel term: " + ballTravelTerm);
 
         float deltaMiddle= bdResults.ballRestHeight - ((TestExperiment.Height + 1.5f) / 2);
