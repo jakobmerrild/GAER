@@ -80,16 +80,16 @@ public class ShapeController : UnitController
 
         print("Balldrop: " + bdResults);
         //exponential function of rotation, scaled to two times the possible value of ChildCount
-        rotationTerm = (Mathf.Pow(2, bdResults.objRotation) / (Mathf.Pow(2,180)) * Height*Length*Width/2);
+        rotationTerm = 0;//(Mathf.Pow(2, bdResults.objRotation) / (Mathf.Pow(2,180)) * Height*Length*Width/2);
         print("rot angle: " + bdResults.objRotation);
         print("rotation term: " + rotationTerm);
 
         //exponential function of ball travel distance
-        ballTravelTerm = Mathf.Pow(2, bdResults.ballTravelled);
+        ballTravelTerm = Mathf.Max(1000, Mathf.Pow(2, bdResults.ballTravelled+5));
         print("ball travel term: " + ballTravelTerm);
 
         float deltaMiddle= bdResults.ballRestHeight - ((TestExperiment.Height + 1.5f) / 2);
-        ballRestTerm = -Mathf.Pow(2,deltaMiddle+2);
+        ballRestTerm = Mathf.Pow(2,-(deltaMiddle+2));
         print("ball rest term: " + ballRestTerm);
 
         print("material cost term: " + ChildCount);
@@ -99,14 +99,14 @@ public class ShapeController : UnitController
         print("fitnesscost: " + fitnessCost);
 
 
-        return float.MaxValue/3.0f - fitnessCost;
+        return (ChildCount == 0) ? 0 : float.MaxValue/3.0f - fitnessCost;
     }
 
     public override void Stop()
     {
         if(_ballDropExperiment != null)
         {
-            Destroy(_ballDropExperiment.ball);
+            Destroy(_ballDropExperiment.toDestroy);
         }
     }
 

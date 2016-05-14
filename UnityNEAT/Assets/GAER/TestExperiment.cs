@@ -37,7 +37,7 @@ namespace GAER
         int _outputCount;
 
         public static readonly int Width = 7;
-        public static readonly int Height = 14;
+        public static readonly int Height = 9;
         public static readonly int Length = 7;
 
 

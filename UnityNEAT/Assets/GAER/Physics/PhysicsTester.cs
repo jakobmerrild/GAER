@@ -1,3 +1,4 @@
+using Assets.GAER.Physics;
 using UnityEngine;
 using GAER;
 
@@ -8,8 +9,8 @@ public class PhysicsTester {
     {
         GameObject ragdoll = GameObject.Instantiate(Resources.Load("EthanRagdoll")) as GameObject;
         //ragdoll.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
-        ragdoll.transform.localPosition = new Vector3(dropPoint.x + TestExperiment.Width / 2, dropPoint.y + TestExperiment.Height / 2 + 50, dropPoint.z + TestExperiment.Length / 2);
-       
+        ragdoll.transform.localPosition = new Vector3(dropPoint.x + TestExperiment.Width / 2, dropPoint.y + TestExperiment.Height+1, dropPoint.z + TestExperiment.Length / 2);
+        ragdoll.AddComponent<StopSphereFromFalling>();
         var rb = ragdoll.GetComponents<Rigidbody>();
 
         foreach (var rib in rb)
@@ -23,13 +24,15 @@ public class PhysicsTester {
     public class BallDropExperiment
     {
         public GameObject ball;
+        public GameObject toDestroy;
         public GameObject obj;
         public Vector3 ballPosition;
         public Quaternion objRotation;
 
-        public BallDropExperiment(GameObject ball, GameObject obj)
+        public BallDropExperiment(GameObject ball, GameObject obj, GameObject toDestroy)
         {
             this.ball = ball;
+            this.toDestroy = toDestroy;
             this.obj = obj;
 
             this.ballPosition = ball.transform.position;
@@ -60,9 +63,10 @@ public class PhysicsTester {
     {
         Transform objTrans = obj.transform;
 
-        GameObject dropObj = createDropObject(objTrans.position + new Vector3(TestExperiment.Width/2, TestExperiment.Height+5, TestExperiment.Length/2));
+        GameObject dropObj = createDropObject(objTrans.position);
 
-        BallDropExperiment bs = new BallDropExperiment(dropObj, obj);
+        var hips = GameObject.Find("EthanSkeleton/EthanHips");
+        BallDropExperiment bs = new BallDropExperiment(hips, obj, dropObj);
 
         var rb = dropObj.GetComponents<Rigidbody>();
 
