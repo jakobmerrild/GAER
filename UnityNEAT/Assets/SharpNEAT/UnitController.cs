@@ -5,7 +5,7 @@ using SharpNeat.Phenomes;
 
 public abstract class UnitController : MonoBehaviour
 {
-
+    public IBlackBox Box { get; protected set; }  
     public event EventHandler MouseDownEvent;
 
     public abstract void Activate(IBlackBox box);

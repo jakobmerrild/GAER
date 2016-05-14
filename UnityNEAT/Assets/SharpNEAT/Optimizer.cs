@@ -149,8 +149,7 @@ public class Optimizer : MonoBehaviour {
         //Utility.Log(string.Format("gen={0:N0} bestFitness={1:N6}", _ea.CurrentGeneration, _ea.Statistics._maxFitness));
 
         Fitness = _ea.Statistics._maxFitness;
-        Generation = _ea.CurrentGeneration;
-      
+        Generation = _ea.CurrentGeneration;        
 
     //    Utility.Log(string.Format("Moving average: {0}, N: {1}", _ea.Statistics._bestFitnessMA.Mean, _ea.Statistics._bestFitnessMA.Length));
 
@@ -388,6 +387,10 @@ public class Optimizer : MonoBehaviour {
         }
         else if (_ea.RunState == RunState.Paused)
         {
+            if (SelectedController != null)
+            {
+                var selectedPhenome = SelectedController.Box;
+            }
             Time.timeScale = evoSpeed;
             _ea.StartContinue();
             _bestPhenomes.ForEach(StopEvaluation);
