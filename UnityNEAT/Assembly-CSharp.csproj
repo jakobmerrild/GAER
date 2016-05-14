@@ -50,6 +50,8 @@
      <Compile Include="Assets\GAER\ShapeController.cs" />
      <Compile Include="Assets\GAER\SimpleEvaluator.cs" />
      <Compile Include="Assets\GAER\TestExperiment.cs" />
+     <Compile Include="Assets\GhostFreeRoamCamera\Demo\Scripts\GUIHelper.cs" />
+     <Compile Include="Assets\GhostFreeRoamCamera\Scripts\GhostFreeRoamCamera.cs" />
      <Compile Include="Assets\SharpNEAT\Core\AuxFitnessInfo.cs" />
      <Compile Include="Assets\SharpNEAT\Core\CoordinateVector.cs" />
      <Compile Include="Assets\SharpNEAT\Core\EvaluationInfo.cs" />
@@ -198,6 +200,7 @@
      <Compile Include="Assets\SharpNEAT\Utility\Utilities.cs" />
      <Compile Include="Assets\SharpNEAT\Utility\XmlIoUtils.cs" />
      <Compile Include="Assets\SharpNEAT\Utility\ZigguratGaussianSampler.cs" />
+     <None Include="Assets\GhostFreeRoamCamera\READEME.txt" />
      <None Include="Assets\Resources\experiment.config.xml" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>

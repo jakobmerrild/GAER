@@ -3,6 +3,7 @@ using System.Collections;
 using SharpNeat.Phenomes;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using GAER;
 using MarchingCubesProject;
 
@@ -19,18 +20,21 @@ public class ShapeController : UnitController
     private Stopwatch sw = new Stopwatch();
     public int ChildCount;
     private PhysicsTester.BallDropExperiment _ballDropExperiment =null;
+    private Color _baseColor;
     // Use this for initialization
     void Start()
     {
         MarchingCubes.SetTarget(_threshold);
         MarchingCubes.SetWindingOrder(0,1,2);
         MarchingCubes.SetModeToCubes();
+        _baseColor = m_material.color;
     }
 
     void FixedUpdate() {    }
 
     public override void Activate(IBlackBox box)
     {
+        Box = box;
         sw.Start();
         _numVoxels = 0;
         for (int x = 0; x < Width; x++)
@@ -71,7 +75,25 @@ public class ShapeController : UnitController
         PhysicsTester.BallDropResults bdResults = PhysicsTester.MeassureBallDropExperiment(_ballDropExperiment);
 
         print("Balldrop: " + bdResults);
-        return -Math.Abs(ChildCount - (Width * Height * Length / 3))+Width*Height*Length;
+        //exponential function of rotation, scaled to two times the possible value of ChildCount
+        float rotationTerm = (Mathf.Pow(2, bdResults.objRotation) / (Mathf.Pow(2,180)) * Height*Length*Width/2);
+        print("rot angle: " + bdResults.objRotation);
+        print("rotation term: " + rotationTerm);
+
+        //exponential function of ball travel distance
+        float ballTravelTerm = Mathf.Pow(2, bdResults.ballTravelled);
+        print("ball travel term: " + ballTravelTerm);
+
+        float ballRestTerm = -bdResults.ballRestHeight;
+        print("ball rest term: " + ballRestTerm);
+
+        print("material cost term: " + ChildCount);
+
+        //Less is better
+        float fitnessCost =  ChildCount + rotationTerm + ballTravelTerm + ballRestTerm;
+        print("fitnesscost: " + fitnessCost);
+
+        return float.MaxValue - fitnessCost;
     }
 
     public override void Stop()
@@ -82,5 +104,20 @@ public class ShapeController : UnitController
         }
     }
 
+    protected override void OnMouseDown()
+    {
+        base.OnMouseDown();
+        foreach (var r in GetComponentsInChildren<Renderer>())
+        {
+            r.material.color = Color.black;
+        }
+    }
 
+    public override void DeSelect()
+    {
+        foreach (var r in GetComponentsInChildren<Renderer>())
+        {
+            r.material.color = _baseColor;
+        }
+    }
 }

@@ -1,25 +1,22 @@
-﻿using UnityEditor.VersionControl;
 using UnityEngine;
+using GAER;
 
 public class PhysicsTester {
 
-    static GameObject createDropObject(Vector3 dropPoint, float width, float height, float length)
+    static GameObject createDropObject(Vector3 dropPoint)
     {
-        GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        sphere.transform.localScale = new Vector3(5, 5, 5);
-        sphere.transform.localPosition = new Vector3(dropPoint.x + width / 2, dropPoint.y + height / 2 + 50, dropPoint.z + length / 2);
-        sphere.AddComponent<Rigidbody>().useGravity=false;
+        GameObject ragdoll = GameObject.Instantiate(Resources.Load("EthanRagdoll")) as GameObject;
+        //ragdoll.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+        ragdoll.transform.localPosition = new Vector3(dropPoint.x + TestExperiment.Width / 2, dropPoint.y + TestExperiment.Height / 2 + 50, dropPoint.z + TestExperiment.Length / 2);
+       
+        //var rb = ragdoll.GetComponents<Rigidbody>();
 
-        return sphere;
-    }
-
-    static GameObject createDropObject2(Vector3 dropPoint, float width, float height, float length)
-    {
-        GameObject sphere = GameObject.Instantiate(Resources.Load("EthanRagdoll")) as GameObject;
-        sphere.transform.localScale = new Vector3(10, 10, 10);
-        sphere.transform.localPosition = new Vector3(dropPoint.x + width / 2, dropPoint.y + height / 2 + 25, dropPoint.z + length / 2);
-
-        return sphere;
+        /*foreach (var rib in rb)
+        {
+            rib.useGravity = false;
+        }
+*/
+        return ragdoll;
     }
 
     public class BallDropExperiment
@@ -43,11 +40,13 @@ public class PhysicsTester {
     {
         public float ballTravelled;
         public float objRotation;
+        public float ballRestHeight;
 
-        public BallDropResults(float ballTravelled, float objRotation)
+        public BallDropResults(float ballTravelled, float objRotation, float ballRestHeight)
         {
             this.ballTravelled = ballTravelled;
             this.objRotation = objRotation;
+            this.ballRestHeight = ballRestHeight;
         }
 
         public override string ToString()
@@ -59,9 +58,17 @@ public class PhysicsTester {
     public static BallDropExperiment StartBallDropExperiment(GameObject obj)
     {
         Transform objTrans = obj.transform;
-        GameObject dropObj = createDropObject2(objTrans.position + new Vector3(0, 5, 0), 10, 0, 10);
+
+        GameObject dropObj = createDropObject(objTrans.position + new Vector3(0, 5, 0));
+
         BallDropExperiment bs = new BallDropExperiment(dropObj, obj);
-        //dropObj.GetComponent<Rigidbody>().useGravity = true;
+
+        /*var rb = dropObj.GetComponents<Rigidbody>();
+
+        foreach (var rib in rb)
+        {
+            rib.useGravity = true;
+        }*/
         return bs;
     }
 
@@ -80,9 +87,11 @@ public class PhysicsTester {
         float _z = newBallPosition.z;
         float ballTravelDistance = Mathf.Sqrt(Mathf.Pow(x - _x,2) + Mathf.Pow(z -_z,2));
 
+        float ballHeight = newBallPosition.y;
+
         float objRotationDegrees = Quaternion.Angle(newObjRotation, oldObjRotation);
 
-        return new BallDropResults(ballTravelDistance, objRotationDegrees);
+        return new BallDropResults(ballTravelDistance, objRotationDegrees, ballHeight);
     }
 
 }

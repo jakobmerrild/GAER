@@ -1,4 +1,5 @@
-﻿#define ROTATECAMERA
+﻿//#define ROTATECAMERA
+#define LOAD_OLD_POPULATION
 using UnityEngine;
 using System.Collections;
 using SharpNeat.Phenomes;
@@ -48,6 +49,8 @@ public class Optimizer : MonoBehaviour {
     private const int NumBestPhenomes = 10;
     private List<IBlackBox> _bestPhenomes;
 
+    public ShapeController SelectedController;
+
     #region Unity methods
     // Use this for initialization
     void Start () {
@@ -63,8 +66,13 @@ public class Optimizer : MonoBehaviour {
         champFileSavePath = Application.persistentDataPath + string.Format("/{0}.champ.xml", "chair");
         popFileSavePath = Application.persistentDataPath + string.Format("/{0}.pop.xml", "chair");
         bestFileSavePath = Application.persistentDataPath + string.Format("/{0}.best.{1}.xml", "chair", NumBestPhenomes);
-	    StoppingFitness = TestExperiment.Height*TestExperiment.Length*TestExperiment.Width;
+        StoppingFitness = float.MaxValue; //never stop for fitness (only stop for what?)
         print(champFileSavePath);
+        var camera = GameObject.FindGameObjectWithTag("MainCamera");
+        camera.GetComponent<GhostFreeRoamCamera>().allowMovement = false;
+        camera.GetComponent<GhostFreeRoamCamera>().allowRotation = false;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
 
         //var rng = new System.Random();
         //float[,,] voxels = new float[10,10,10];
@@ -95,7 +103,6 @@ public class Optimizer : MonoBehaviour {
         //sphere.transform.position = new Vector3(1, 20, 1);
         //sphere.transform.localScale = new Vector3(10, 10, 10);
 
-
     }
 
     // Update is called once per frame
@@ -125,7 +132,7 @@ public class Optimizer : MonoBehaviour {
     #region Listener methods for subscribing to EA events.
     //Fields used to automatically request the EA to pause at certain intervals.
     private ulong _updateCounter;
-    private const uint Intervals = 10; //Adjust this up to make the auto pause happen more rarely, and down for more frequently.
+    private const uint Intervals = 3; //Adjust this up to make the auto pause happen more rarely, and down for more frequently.
     /// <summary>
     /// Callback method for the update event on the EA.
     /// </summary>
@@ -142,8 +149,7 @@ public class Optimizer : MonoBehaviour {
         //Utility.Log(string.Format("gen={0:N0} bestFitness={1:N6}", _ea.CurrentGeneration, _ea.Statistics._maxFitness));
 
         Fitness = _ea.Statistics._maxFitness;
-        Generation = _ea.CurrentGeneration;
-      
+        Generation = _ea.CurrentGeneration;        
 
     //    Utility.Log(string.Format("Moving average: {0}, N: {1}", _ea.Statistics._bestFitnessMA.Mean, _ea.Statistics._bestFitnessMA.Length));
 
@@ -188,10 +194,16 @@ public class Optimizer : MonoBehaviour {
         }
         DateTime endTime = DateTime.Now;
         Utility.Log("Total time elapsed: " + (endTime - startTime));
-#if (ROTATECAMERA)
+
         var camera = GameObject.FindGameObjectWithTag("MainCamera");
+#if (ROTATECAMERA)
         camera.transform.Rotate(Vector3.up, 180.0f);
 #endif
+        //Unlock camera movement.
+        camera.GetComponent<GhostFreeRoamCamera>().allowMovement = true;
+        camera.GetComponent<GhostFreeRoamCamera>().allowRotation = true;
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
 
         //System.IO.StreamReader stream = new System.IO.StreamReader(popFileSavePath);
 
@@ -228,7 +240,18 @@ public class Optimizer : MonoBehaviour {
  
         GameObject obj = Instantiate(Unit, new Vector3(xPos, 0, zPos), Unit.transform.rotation) as GameObject;
         UnitController controller = obj.GetComponent<UnitController>();
-
+        controller.MouseDownEvent += (sender, args) =>
+        {
+            var shapeController = sender as ShapeController;
+            if (SelectedController != null)
+            {
+                SelectedController.DeSelect();
+            }
+            if (shapeController != null)
+            {
+                SelectedController = shapeController;
+            }
+        };
         ControllerMap.Add(box, controller);
 
         controller.Activate(box);
@@ -320,7 +343,7 @@ public class Optimizer : MonoBehaviour {
         {
             RunBest();
         }
-        GUI.Button(new Rect(10, Screen.height - 70, 100, 60), string.Format("Generation: {0}\nFitness: {1:0.00}", Generation, Fitness));
+        GUI.Button(new Rect(10, Screen.height - 70, 100, 60), string.Format("Generation: {0}\nFitness: {1:0.00}", Generation, -1* (Fitness - float.MaxValue)));
     }
     /// <summary>
     /// Method to be called by the Stop EA button
@@ -336,17 +359,28 @@ public class Optimizer : MonoBehaviour {
 
     public void StartEA()
     {
-#if (ROTATECAMERA)
         var camera = GameObject.FindGameObjectWithTag("MainCamera");
+#if (ROTATECAMERA)
         camera.transform.Rotate(Vector3.up, 180.0f);
 #endif
-        var evoSpeed = 10;
+        //lock camera movement
+        camera.GetComponent<GhostFreeRoamCamera>().allowMovement = false;
+        camera.GetComponent<GhostFreeRoamCamera>().allowRotation = false;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
+        var evoSpeed = 100;
+
         if (_ea == null)
         {
             Utility.DebugLog = true;
             Utility.Log("Starting PhotoTaxis experiment");
             // print("Loading: " + popFileLoadPath);
+#if (LOAD_OLD_POPULATION)
             _ea = experiment.CreateEvolutionAlgorithm(popFileSavePath);
+#else
+            _ea = experiment.CreateEvolutionAlgorithm();
+#endif
             startTime = DateTime.Now;
 
             _ea.UpdateEvent += ea_UpdateEvent;
@@ -359,6 +393,10 @@ public class Optimizer : MonoBehaviour {
         }
         else if (_ea.RunState == RunState.Paused)
         {
+            if (SelectedController != null)
+            {
+                var selectedPhenome = SelectedController.Box;
+            }
             Time.timeScale = evoSpeed;
             _ea.StartContinue();
             _bestPhenomes.ForEach(StopEvaluation);
@@ -377,5 +415,5 @@ public class Optimizer : MonoBehaviour {
             _ea.RequestPause();
         }
     }
-    #endregion
+#endregion
 }
