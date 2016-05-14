@@ -19,6 +19,7 @@ public class ShapeController : UnitController
     private float _threshold = 0.5f;
     private Stopwatch sw = new Stopwatch();
     public int ChildCount;
+    private PhysicsTester.BallDropExperiment _ballDropExperiment =null;
     private Color _baseColor;
     // Use this for initialization
     void Start()
@@ -55,24 +56,14 @@ public class ShapeController : UnitController
         }
         print(String.Format("Time taken to generate voxels: {0}ms", sw.ElapsedMilliseconds));
 
-        //Mesh mesh = MarchingCubes.CreateMesh(_voxels);
-
-        //mesh.uv = new Vector2[mesh.vertices.Length];
-        //mesh.RecalculateNormals();
-
-        //m_mesh = new GameObject("Mesh");
-        //m_mesh.AddComponent<MeshFilter>();
-        //m_mesh.AddComponent<MeshRenderer>();
-        //m_mesh.GetComponent<Renderer>().material = m_material;
-        //m_mesh.GetComponent<MeshFilter>().mesh = mesh;
-        ////Center mesh
-        //m_mesh.transform.position = transform.position;
         var stopWatch = new Stopwatch();
         stopWatch.Start();
         Geometry.FindLargestComponent(_voxels, _threshold, gameObject);
         stopWatch.Stop();
         ChildCount = transform.childCount;
+        _ballDropExperiment = PhysicsTester.StartBallDropExperiment(gameObject);
         print(String.Format("It took {0}ms to find largest component.", stopWatch.ElapsedMilliseconds));
+
 
     }
 
@@ -80,12 +71,38 @@ public class ShapeController : UnitController
     {
         sw.Stop();
         print(String.Format("It took {0}ms from activation to fitness evaluation.", sw.ElapsedMilliseconds));
-        return -Math.Abs(ChildCount - (Width * Height * Length / 3))+Width*Height*Length;
+
+        PhysicsTester.BallDropResults bdResults = PhysicsTester.MeassureBallDropExperiment(_ballDropExperiment);
+
+        print("Balldrop: " + bdResults);
+        //exponential function of rotation, scaled to two times the possible value of ChildCount
+        float rotationTerm = (Mathf.Pow(2, bdResults.objRotation) / (Mathf.Pow(2,180)) * Height*Length*Width/2);
+        print("rot angle: " + bdResults.objRotation);
+        print("rotation term: " + rotationTerm);
+
+        //exponential function of ball travel distance
+        float ballTravelTerm = Mathf.Pow(2, bdResults.ballTravelled);
+        print("ball travel term: " + ballTravelTerm);
+
+        float ballRestTerm = -bdResults.ballRestHeight;
+        print("ball rest term: " + ballRestTerm);
+
+        print("material cost term: " + ChildCount);
+
+        //Less is better
+        float fitnessCost =  ChildCount + rotationTerm + ballTravelTerm + ballRestTerm;
+        print("fitnesscost: " + fitnessCost);
+
+        //return float.MaxValue - fitnessCost;
+        return ChildCount;
     }
 
     public override void Stop()
     {
-        Destroy(m_mesh);
+        if(_ballDropExperiment != null)
+        {
+            Destroy(_ballDropExperiment.ball);
+        }
     }
 
     protected override void OnMouseDown()
@@ -105,6 +122,3 @@ public class ShapeController : UnitController
         }
     }
 }
-
-
-

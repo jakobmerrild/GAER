@@ -1,4 +1,4 @@
-﻿#define ROTATECAMERA
+﻿//#define ROTATECAMERA
 using UnityEngine;
 using System.Collections;
 using SharpNeat.Phenomes;
@@ -65,7 +65,7 @@ public class Optimizer : MonoBehaviour {
         champFileSavePath = Application.persistentDataPath + string.Format("/{0}.champ.xml", "chair");
         popFileSavePath = Application.persistentDataPath + string.Format("/{0}.pop.xml", "chair");
         bestFileSavePath = Application.persistentDataPath + string.Format("/{0}.best.{1}.xml", "chair", NumBestPhenomes);
-	    StoppingFitness = TestExperiment.Height*TestExperiment.Length*TestExperiment.Width;
+        StoppingFitness = float.MaxValue; //never stop for fitness (only stop for what?)
         print(champFileSavePath);
         var camera = GameObject.FindGameObjectWithTag("MainCamera");
         camera.GetComponent<GhostFreeRoamCamera>().allowMovement = false;
@@ -101,7 +101,6 @@ public class Optimizer : MonoBehaviour {
         //sphere.GetComponent<Rigidbody>().mass = 100;
         //sphere.transform.position = new Vector3(1, 20, 1);
         //sphere.transform.localScale = new Vector3(10, 10, 10);
-
 
     }
 
@@ -343,7 +342,7 @@ public class Optimizer : MonoBehaviour {
         {
             RunBest();
         }
-        GUI.Button(new Rect(10, Screen.height - 70, 100, 60), string.Format("Generation: {0}\nFitness: {1:0.00}", Generation, Fitness));
+        GUI.Button(new Rect(10, Screen.height - 70, 100, 60), string.Format("Generation: {0}\nFitness: {1:0.00}", Generation, -1* (Fitness - float.MaxValue)));
     }
     /// <summary>
     /// Method to be called by the Stop EA button
@@ -368,7 +367,9 @@ public class Optimizer : MonoBehaviour {
         camera.GetComponent<GhostFreeRoamCamera>().allowRotation = false;
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
+
         var evoSpeed = 100;
+
         if (_ea == null)
         {
             Utility.DebugLog = true;
