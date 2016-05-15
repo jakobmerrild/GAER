@@ -123,11 +123,11 @@ namespace SharpNEAT.Core
                       //  Utility.Log("Fitness is " + fit + ", stopping now because stopping fitness is " + _optimizer.StoppingFitness);
                       //  _phenomeEvaluator.StopConditionSatisfied = true;
                     }
-                    if (_optimizer.SelectedGenomeId == genome.Id)
+                    if (_optimizer.SelectionHasBeenMade && _optimizer.SelectedGenomeId == genome.Id)
                     {
                         if (_optimizer.TimeSinceSelection < Optimizer.DecayTime)
                         {
-                            fitness += _optimizer.TimeSinceSelection*Optimizer.SelectionBoost;
+                            fitness += (Optimizer.DecayTime-_optimizer.TimeSinceSelection)*Optimizer.SelectionBoost;
                         }
                     }
                     genome.EvaluationInfo.SetFitness(fitness);

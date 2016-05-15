@@ -52,11 +52,12 @@ public class Optimizer : MonoBehaviour {
 
     private bool _loadOldPopulation;
     public ShapeController SelectedController;
+    public bool SelectionHasBeenMade { get; private set; }
     public uint SelectedGenomeId { get; private set; }
     public uint SelectedGeneration { get; private set; }
     public int TimeSinceSelection { get { return (int) _ea.CurrentGeneration - (int) SelectedGeneration; }}
-    public const int DecayTime = 10;
-    public const float SelectionBoost = 1e5f;
+    public const int DecayTime = 11;
+    public const float SelectionBoost = 1e2f;
 
     #region Unity methods
     // Use this for initialization
@@ -140,7 +141,7 @@ public class Optimizer : MonoBehaviour {
     #region Listener methods for subscribing to EA events.
     //Fields used to automatically request the EA to pause at certain intervals.
     private ulong _updateCounter;
-    private const uint Intervals = 10; //Adjust this up to make the auto pause happen more rarely, and down for more frequently.
+    private const uint Intervals = 100; //Adjust this up to make the auto pause happen more rarely, and down for more frequently.
     /// <summary>
     /// Callback method for the update event on the EA.
     /// </summary>
@@ -385,6 +386,7 @@ public class Optimizer : MonoBehaviour {
                 selectedGenome.EvaluationInfo.SetFitness(float.MaxValue);
                 SelectedGenomeId = selectedGenome.Id;
                 SelectedGeneration = _ea.CurrentGeneration;
+                SelectionHasBeenMade = true;
             }
             Time.timeScale = evoSpeed;
             _ea.StartContinue();
