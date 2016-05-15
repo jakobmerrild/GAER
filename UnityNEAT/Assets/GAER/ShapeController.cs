@@ -93,32 +93,38 @@ public class ShapeController : UnitController
         ballRestTerm = Mathf.Pow(2,-(deltaMiddle*2));
         print("ball rest term: " + ballRestTerm);
 
+        float headHeightTerm = -(bdResults.headOverHips/6.75f)*1000;
         //print("material cost term: " + ChildCount);
 
         //Less is better
-        fitnessCost =  ChildCount + rotationTerm + ballTravelTerm + ballRestTerm;
+        fitnessCost =  ChildCount + rotationTerm + ballTravelTerm + ballRestTerm + headHeightTerm;
         print("fitnesscost: " + fitnessCost);
 
-	float maxRotation = Height*Length*Width*3.2f;
-	float maxBallTravel = 1000;
-	float maxBallRest = Mathf.Pow(2,(TestExperiment.Height+2f));
-	float maxChildCount = Height * Length * Width;
+	    float maxRotation = Height*Length*Width*3.2f;
+	    float maxBallTravel = 1000;
+	    float maxBallRest = Mathf.Pow(2,(TestExperiment.Height+2f));
+	    float maxChildCount = Height * Length * Width;
+        float maxHead = 1000;
 
-	if (rotationTerm > maxRotation) {
-		throw new SystemException("rotation term above assumed max");
-	}
-	if (ballTravelTerm > maxBallTravel) {
-		throw new SystemException("ball travel term above assumed max");
-	}
-	if (ballRestTerm > maxBallRest) {
-		throw new SystemException("ball rest term above assumed max");
-	}
-	if (ChildCount > maxChildCount) {
-		throw new SystemException("max child count term above assumed max");
-	}
+	    if (rotationTerm > maxRotation) {
+		    throw new SystemException("rotation term above assumed max");
+	    }
+	    if (ballTravelTerm > maxBallTravel) {
+		    throw new SystemException("ball travel term above assumed max");
+	    }
+	    if (ballRestTerm > maxBallRest) {
+		    throw new SystemException("ball rest term above assumed max");
+	    }
+	    if (ChildCount > maxChildCount) {
+		    throw new SystemException("child count term above assumed max");
+	    }
+        if (headHeightTerm > maxHead)
+        {
+            throw new SystemException("head height term above assumed max");
+        }
 
-        return (ChildCount == 0) ? 0 : (maxChildCount + maxRotation + maxBallTravel + maxBallRest) - fitnessCost;
-    }
+            return (ChildCount == 0) ? 0 : (maxChildCount + maxRotation + maxBallTravel + maxBallRest) - fitnessCost;
+        }
 
     public override void Stop()
     {

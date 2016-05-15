@@ -322,7 +322,7 @@ public class Optimizer : MonoBehaviour {
         }
         _loadOldPopulation = GUI.Toggle(new Rect(10, 210, 200, 40), _loadOldPopulation, "Load old population.");
 
-        GUI.Button(new Rect(10, Screen.height - 70, 100, 60), string.Format("Generation: {0}\nFitness: {1:0.00}", Generation, Fitness - float.MaxValue));
+        GUI.Button(new Rect(10, Screen.height - 70, 100, 60), string.Format("Generation: {0}\nFitness: {1:0.00}", Generation, Fitness));
     }
     /// <summary>
     /// Method to be called by the Stop EA button

@@ -26,15 +26,19 @@ public class PhysicsTester {
         public GameObject ball;
         public GameObject toDestroy;
         public GameObject obj;
+        public GameObject head;
         public Vector3 ballPosition;
+        public Vector3 headPosition;
         public Quaternion objRotation;
 
-        public BallDropExperiment(GameObject ball, GameObject obj, GameObject toDestroy)
+        public BallDropExperiment(GameObject ball, GameObject head, GameObject obj, GameObject toDestroy)
         {
             this.ball = ball;
             this.toDestroy = toDestroy;
             this.obj = obj;
+            this.head = head;
 
+            this.headPosition = head.transform.position;
             this.ballPosition = ball.transform.position;
             this.objRotation = obj.transform.rotation;
         }
@@ -45,12 +49,14 @@ public class PhysicsTester {
         public float ballTravelled;
         public float objRotation;
         public float ballRestHeight;
+        public float headOverHips;
 
-        public BallDropResults(float ballTravelled, float objRotation, float ballRestHeight)
+        public BallDropResults(float ballTravelled, float headHeightOverHips, float objRotation, float ballRestHeight)
         {
             this.ballTravelled = ballTravelled;
             this.objRotation = objRotation;
             this.ballRestHeight = ballRestHeight;
+            this.headOverHips = headHeightOverHips;
         }
 
         public override string ToString()
@@ -66,7 +72,8 @@ public class PhysicsTester {
         GameObject dropObj = createDropObject(objTrans.position);
 
         var hips = GameObject.Find("EthanSkeleton/EthanHips");
-        BallDropExperiment bs = new BallDropExperiment(hips, obj, dropObj);
+        var head = GameObject.Find("EthanSkeleton/EthanHips/EthanSpine/EthanSpine1/EthanSpine2/EthanNeck/EthanHead");
+        BallDropExperiment bs = new BallDropExperiment(hips, head, obj, dropObj);
 
         var rb = dropObj.GetComponents<Rigidbody>();
 
@@ -81,9 +88,10 @@ public class PhysicsTester {
     {
         Vector3 newBallPosition = exp.ball.transform.position;
         Quaternion newObjRotation = exp.obj.transform.rotation;
+        Vector3 newHeadPosition = exp.head.transform.position;
 
         Vector3 oldBallPosition = exp.ballPosition;
-        Quaternion oldObjRotation = exp.objRotation;
+        Quaternion oldObjRotation = exp.objRotation;        
 
         //ball travel distanve --- we ignore changes in height
         float x = oldBallPosition.x;
@@ -92,11 +100,13 @@ public class PhysicsTester {
         float _z = newBallPosition.z;
         float ballTravelDistance = Mathf.Sqrt(Mathf.Pow(x - _x,2) + Mathf.Pow(z -_z,2));
 
+        float headHeightOverHips = newHeadPosition.y - newBallPosition.y;
+
         float ballHeight = newBallPosition.y;
 
         float objRotationDegrees = Quaternion.Angle(newObjRotation, oldObjRotation);
 
-        return new BallDropResults(ballTravelDistance, objRotationDegrees, ballHeight);
+        return new BallDropResults(ballTravelDistance, headHeightOverHips, objRotationDegrees, ballHeight);
     }
 
 }
