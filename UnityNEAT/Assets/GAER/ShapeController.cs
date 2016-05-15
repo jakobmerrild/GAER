@@ -93,7 +93,7 @@ public class ShapeController : UnitController
         ballRestTerm = Mathf.Pow(2,-(deltaMiddle*2));
         print("ball rest term: " + ballRestTerm);
 
-        float headHeightTerm = -(bdResults.headOverHips/6.75f)*1000;
+        float headHeightTerm = -((bdResults.headOverHips+6.75f)/13.5f - 0.7f)*2000;
         //print("material cost term: " + ChildCount);
 
         //Less is better
@@ -104,7 +104,7 @@ public class ShapeController : UnitController
 	    float maxBallTravel = 1000;
 	    float maxBallRest = Mathf.Pow(2,(TestExperiment.Height+2f));
 	    float maxChildCount = Height * Length * Width;
-        float maxHead = 1000;
+        float maxHead = 600;
 
 	    if (rotationTerm > maxRotation) {
 		    throw new SystemException("rotation term above assumed max");
@@ -123,7 +123,7 @@ public class ShapeController : UnitController
             throw new SystemException("head height term above assumed max");
         }
 
-            return (ChildCount == 0) ? 0 : (maxChildCount + maxRotation + maxBallTravel + maxBallRest) - fitnessCost;
+            return (ChildCount == 0) ? 0 : (maxChildCount + maxRotation + maxBallTravel + maxBallRest + maxHead) - fitnessCost;
         }
 
     public override void Stop()
