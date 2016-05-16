@@ -25,6 +25,7 @@ public class ShapeController : UnitController
     public float ballTravelTerm;
     public float ballRestTerm;
     public float fitnessCost;
+    public float childMass;
 
     // Use this for initialization
     void Start()
@@ -66,6 +67,7 @@ public class ShapeController : UnitController
         Geometry.FindLargestComponent(_voxels, _threshold, gameObject);
         stopWatch.Stop();
         ChildCount = transform.childCount;
+        gameObject.GetComponent<Rigidbody>().mass = ChildCount*childMass;
         _ballDropExperiment = PhysicsTester.StartBallDropExperiment(gameObject);
         print(String.Format("It took {0}ms to find largest component.", stopWatch.ElapsedMilliseconds));
 
